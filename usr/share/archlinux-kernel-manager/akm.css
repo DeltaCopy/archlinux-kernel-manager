@@ -1,0 +1,208 @@
+box#box{
+    padding: 10px 10px 10px 10px;
+}
+
+box#vbox_flowbox_message {
+    padding: 10px 10px 10px 10px;
+}
+
+box#vbox_active_kernel{
+   	padding: 5px 5px 5px 5px;
+}
+
+box#hbox_notify_revealer{
+    padding: 10px 10px 10px 10px;
+    border-radius: 10px;
+    border-spacing: 5px;
+    background-color: #3fe1b0;
+    color: #0e1313;
+}
+
+box#box_row{
+    padding-left: 20px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+
+}
+
+box#hbox_kernel{
+	background-color: @theme_base_color;
+	border-top: 1px solid @borders;
+	border-bottom: 1px solid @borders;
+	border-left: 1px solid @borders;
+	border-right: 1px solid @borders;
+	padding: 5px 5px 5px 5px;
+	border-radius: 10px;
+	border-spacing: 5px;
+}
+
+box#vbox_community{
+	background-color: @theme_base_color;
+	border-top: 1px solid @borders;
+	border-bottom: 1px solid @borders;
+	border-left: 1px solid @borders;
+	border-right: 1px solid @borders;
+	padding: 5px 5px 5px 5px;
+	border-radius: 10px;
+	border-spacing: 5px;
+	border-width: 1px;
+	border-color: white;
+
+}
+box#vbox_icon_settings{
+    background-color: @theme_base_color;
+    border-top: 1px solid @borders;
+    border-bottom: 1px solid @borders;
+    border-left: 1px solid @borders;
+    border-right: 1px solid @borders;
+    padding: 5px 5px 5px 5px;
+    border-radius: 100px;
+    border-spacing: 5px;
+    font-weight: bold;
+    color: #fcfcfc;
+    font-family: 'Noto Sans', 'Helvetica', sans-serif;
+}
+
+label#label_notify_revealer{
+    background-color: #3fe1b0;
+    color: #0e1313;
+    font-family: 'Noto Sans', 'Helvetica', sans-serif;
+    font-weight: bold;
+}
+
+label#label_flowbox_message {
+    padding: 5px 5px 5px 5px;
+    font-size: 12.5px;
+    font-family: 'Noto Sans', 'Helvetica', sans-serif;
+}
+
+label#label_active_kernel {
+    background-color: @theme_base_color;
+    border-top: 1px solid @borders;
+    border-bottom: 1px solid @borders;
+    border-left: 1px solid @borders;
+    border-right: 1px solid @borders;
+    padding: 5px 5px 5px 5px;
+    border-radius: 100px;
+    border-spacing: 5px;
+    font-weight: bold;
+    color: #fcfcfc;
+    font-family: 'Noto Sans', 'Helvetica', sans-serif;
+}
+
+label#label_stack_kernel {
+   font-size: 20px;
+   font-weight: 600;
+   border-top: 1px solid @borders;
+   border-bottom: 1px solid @borders;
+   border-left: 1px solid @borders;
+   border-right: 1px solid @borders;
+   padding: 5px 5px 5px 5px;
+   border-radius: 100px;
+   border-spacing: 5px;
+   font-family: 'Noto Sans', 'Helvetica', sans-serif;
+   color: #fcfcfc;
+   background-color: @theme_base_color;
+}
+
+label#label_stack_desc {
+   font-size: 12.5px;
+   font-weight: 600;
+   padding: 5px 5px 5px 5px;
+   font-style: italic;
+   font-family: 'Noto Sans', 'Helvetica', sans-serif;
+}
+
+label#label_community_warning {
+   font-size: 12.5px;
+   padding: 5px 5px 5px 5px;
+   font-family: 'Noto Sans', 'Helvetica', sans-serif;
+}
+
+label#label_error{
+   font-size: 12.5px;
+   font-weight: 600;
+   padding: 5px 5px 5px 5px;
+   color: #fcfcfc;
+   background-color: #E42217;
+   font-family: 'Noto Sans', 'Helvetica', sans-serif;
+   border-top: 1px solid @borders;
+   border-bottom: 1px solid @borders;
+   border-left: 1px solid @borders;
+   border-right: 1px solid @borders;
+   padding: 5px 5px 5px 5px;
+   border-radius: 10px;
+   border-spacing: 5px;
+}
+
+label#label_stack_count {
+   font-size: 12px;
+   font-weight: 500;
+   padding: 5px 5px 5px 5px;
+   font-style: italic;
+   font-family: 'Noto Sans', 'Helvetica', sans-serif;
+}
+
+label#label_kernel_version {
+    font-weight: 600;
+    padding: 5px 5px 5px 5px;
+    font-size: 12px;
+    color: white;
+    font-family: 'Noto Sans', 'Helvetica', sans-serif;
+}
+
+label#label_kernel_flowbox {
+    padding: 5px 5px 5px 5px;
+    font-size: 11px;
+    font-family: 'Noto Sans', 'Helvetica', sans-serif;
+}
+
+label#label_about {
+    padding: 5px 5px 5px 5px;
+    font-size: 11px;
+    font-family: 'Noto Sans', 'Helvetica', sans-serif;
+}
+
+button#button_uninstall_kernel{
+    font-weight: 600;
+}
+
+label#label_splash_progress {
+    font-size: 14.5px;
+    font-weight: 600;
+    padding: 5px 5px 5px 5px;
+    color: #fcfcfc;
+    background-color: @theme_base_color;
+    font-family: 'Noto Sans', 'Helvetica', sans-serif;
+    border-top: 1px solid @borders;
+    border-bottom: 1px solid @borders;
+    border-left: 1px solid @borders;
+    border-right: 1px solid @borders;
+    padding: 5px 5px 5px 5px;
+    border-radius: 10px;
+    border-spacing: 5px;
+}
+
+stacksidebar#stacksidebar_kernel {
+   font-size: 14px;
+   font-weight: 500;
+   padding: 15px 15px 15px 15px;
+   border-radius: 10px;
+   border-spacing: 5px;
+}
+
+stackswitcher#stacksidebar_kernel {
+   font-size: 12px;
+   font-weight: bold;
+   padding: 5px 5px 5px 5px;
+}
+
+#textview_log text{
+    background-color: #232627;
+    color: #fcfcfc;
+    font-family: 'Noto Sans', 'Helvetica', sans-serif;
+    border-top: 1px solid @borders;
+    border-bottom: 1px solid @borders;
+    border-left: 1px solid @borders;
+    border-right: 1px solid @borders;
+}
