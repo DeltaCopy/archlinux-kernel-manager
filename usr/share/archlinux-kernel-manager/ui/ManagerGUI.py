@@ -21,9 +21,13 @@ class ManagerGUI(Gtk.ApplicationWindow):
     def __init__(self, app_name, default_context, app_version, **kwargs):
         super().__init__(**kwargs)
 
+
         self.default_context = default_context
 
         self.app_version = app_version
+
+        if self.app_version == "${app_version}":
+            self.app_version = "dev"
 
         self.set_title(app_name)
         self.set_resizable(True)

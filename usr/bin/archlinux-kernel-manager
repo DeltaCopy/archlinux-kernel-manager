@@ -49,3 +49,4 @@ echo "--------------------------------------------------------------------------
 
 echo "[INFO] Starting Arch Linux Kernel Manager"
 pkexec '/usr/share/archlinux-kernel-manager/archlinux-kernel-manager.py'
+
