@@ -370,6 +370,7 @@ class ProgressWindow(Gtk.Window):
                 message="Please wait for the pacman process to finish",
                 image_path="images/48x48/akm-progress.png",
                 transient_for=self,
+                detailed_message=False,
             )
 
             mw.present()
@@ -383,6 +384,7 @@ class ProgressWindow(Gtk.Window):
                 message="Please wait for the pacman process to finish",
                 image_path="images/48x48/akm-progress.png",
                 transient_for=self,
+                detailed_message=False,
             )
 
             mw.present()

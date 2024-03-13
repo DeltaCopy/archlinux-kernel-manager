@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE policyconfig PUBLIC "-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN" "http://www.freedesktop.org/standards/PolicyKit/1.0/policyconfig.dtd">
 <policyconfig>
-  <vendor>ArcoLinux</vendor>
+  <vendor>Arch Linux</vendor>
   <vendor_url>https://github.com/DeltaCopy/archlinux-kernel-manager</vendor_url>
   <icon_name>package-x-generic</icon_name>
   <action id="org.archlinux.pkexec.akm">
-    <description>Explore ArcoLinux repositories</description>
+    <description>Add/Remove Linux kernels from Arch Linux based systems</description>
     <description xml:lang="zh_TW">變更您自身的使用者資料</description>
     <description xml:lang="zh_CN">修改您的用户数据</description>
     <description xml:lang="uk">Зміна даних вашого користувача</description>

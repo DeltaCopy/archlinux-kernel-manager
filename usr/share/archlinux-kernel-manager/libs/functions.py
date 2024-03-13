@@ -661,21 +661,7 @@ def get_kernels(self):
                     ),
                     daemon=True,
                 ).start()
-                # response = session.get(
-                #     "%s/packages/l/%s" % (archlinux_mirror_archive_url, linux_kernel),
-                #     headers=headers,
-                #     allow_redirects=True,
-                #     timeout=60,
-                #     stream=True,
-                # )
-
-                # if response.status_code == 200:
-                #     logger.info("Response is 200")
-                #     if response.text is not None:
-                #         response_content[linux_kernel] = response.text
-                # else:
-                #     logger.error("Something went wrong with the request")
-                #     logger.error(response.text)
+              
 
             wait_for_response(response_queue)
             session.close()
@@ -730,6 +716,11 @@ def print_running_threads():
         logger.info("Thread alive = %s" % thread.name)
 
 
+
+# =====================================================
+#               UPDATE TEXTVIEW IN PROGRESS WINDOW
+# =====================================================
+
 def update_progress_textview(self, line):
     try:
         if len(line) > 0:
@@ -747,7 +738,10 @@ def update_progress_textview(self, line):
         self.textview.scroll_mark_onscreen(text_mark_end)
 
 
-# keep track of messages added to the queue, and updates the textview in almost realtime
+# =====================================================
+#               MESSAGES QUEUE: UPDATE TEXTVIEW IN RT
+# =====================================================
+
 def monitor_messages_queue(self):
     try:
         while True:
@@ -760,6 +754,11 @@ def monitor_messages_queue(self):
             )
     except Exception as e:
         logger.error("Exception in monitor_messages_queue(): %s" % e)
+
+
+# =====================================================
+#               CHECK IF KERNEL INSTALLED
+# =====================================================
 
 
 def check_kernel_installed(name):
@@ -783,7 +782,10 @@ def check_kernel_installed(name):
         logger.error("Exception in check_kernel_installed(): %s" % e)
 
 
-# uninstall kernel
+# =====================================================
+#               REMOVE KERNEL
+# =====================================================
+
 def uninstall(self):
     try:
         kernel_installed = check_kernel_installed(self.kernel.name)
@@ -892,6 +894,9 @@ def uninstall(self):
     except Exception as e:
         logger.error("Exception in uninstall(): %s" % e)
 
+# =====================================================
+#               LIST COMMUNITY KERNELS
+# =====================================================
 
 def get_community_kernels(self):
     try:
@@ -946,7 +951,11 @@ def get_community_kernels(self):
         logger.error("Exception in get_community_kernels(): %s" % e)
 
 
-# install kernel from community pacman repositories
+
+
+# =====================================================
+#               INSTALL COMMUNITY KERNELS
+# =====================================================
 def install_community_kernel(self):
     try:
         for kernel in [self.kernel.name, "%s-headers" % self.kernel.name]:
@@ -1157,11 +1166,6 @@ def get_active_kernel():
                     return kernel
     except Exception as e:
         logger.error("Exception in get_active_kernel(): %s" % e)
-
-
-# ======================================================================
-#                   PACMAN - SYNC DB
-# ======================================================================
 
 
 # =====================================================
