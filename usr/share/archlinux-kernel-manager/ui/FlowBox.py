@@ -338,6 +338,7 @@ class FlowBox(Gtk.FlowBox):
                 message="Pacman lockfile found, which indicates another pacman process is running",
                 transient_for=self.manager_gui,
                 detailed_message=False,
+                image_path="images/48x48/akm-warning.png",
             )
             msg_win.present()
             return True

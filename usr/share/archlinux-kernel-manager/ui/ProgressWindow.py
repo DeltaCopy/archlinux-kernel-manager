@@ -1,5 +1,4 @@
 import sys
-
 import gi
 import os
 import libs.functions as fn
@@ -31,6 +30,7 @@ class ProgressWindow(Gtk.Window):
 
         self.textview = textview
         self.textbuffer = textbuffer
+
         self.kernel_state_queue = fn.Queue()
         self.messages_queue = fn.Queue()
         self.kernel = kernel
@@ -194,8 +194,6 @@ class ProgressWindow(Gtk.Window):
 
         hbox_notify_revealer.append(self.label_notify_revealer)
 
-        # self.scrolled_window.set_visible(False)
-
         if self.textview.get_buffer() is not None:
             self.textview = Gtk.TextView()
             self.textview.set_property("editable", False)
@@ -205,8 +203,6 @@ class ProgressWindow(Gtk.Window):
             self.textview.set_hexpand(True)
 
             self.textview.set_buffer(self.textbuffer)
-            self.scrolled_window.set_child(self.textview)
-        else:
             self.scrolled_window.set_child(self.textview)
 
         vbox_progress.append(self.notify_revealer)
@@ -252,15 +248,18 @@ class ProgressWindow(Gtk.Window):
             ]
 
         if fn.check_pacman_lockfile() is False:
-            if not fn.is_thread_alive(fn.thread_monitor_messages):
-                th_monitor_messages_queue = fn.threading.Thread(
-                    name=fn.thread_monitor_messages,
-                    target=fn.monitor_messages_queue,
-                    daemon=True,
-                    args=(self,),
-                )
+            th_monitor_messages_queue = fn.threading.Thread(
+                name=fn.thread_monitor_messages,
+                target=fn.monitor_messages_queue,
+                daemon=True,
+                args=(self,),
+            )
 
-                th_monitor_messages_queue.start()
+            th_monitor_messages_queue.start()
+
+            if fn.is_thread_alive(fn.thread_monitor_messages):
+                self.textbuffer.delete(self.textbuffer.get_start_iter(),self.textbuffer.get_end_iter())
+
 
             if not fn.is_thread_alive(fn.thread_check_kernel_state):
                 th_check_kernel_state = fn.threading.Thread(

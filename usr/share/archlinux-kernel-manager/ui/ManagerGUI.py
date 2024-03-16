@@ -478,7 +478,7 @@ class ManagerGUI(Gtk.ApplicationWindow):
         while self.default_context.pending():
             self.default_context.iteration(True)
 
-        fn.time.sleep(1.0)
+        fn.time.sleep(0.1)
 
         self.queue_load_progress.put(1)
         fn.logger.info("Kernel manager UI loaded")

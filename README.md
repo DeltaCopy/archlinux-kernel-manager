@@ -13,7 +13,7 @@ The following Kernels are supported:
 - linux-rt
 - linux-rt-lts
 
-![Official kernel](https://github.com/DeltaCopy/archlinux-kernel-manager-dev/assets/121581829/bb509540-47ae-4735-968b-89ac330eb9ee)
+![Official kernel](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/c95f1c21-54e2-42b3-a182-759edec07fae)
 
 # Community based Kernels
 
@@ -31,7 +31,7 @@ Community based Kernels are also supported, as long as the necessary Pacman repo
 - linux-amd
 - linux-nitrous
 
-![Community kernel](https://github.com/DeltaCopy/archlinux-kernel-manager-dev/assets/121581829/cfda3727-178f-4465-aa31-378bce630aee)
+![Community kernel](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/a8db794c-e045-4e75-8496-4f537b2f8e10)
 
 # Bootloader
 
@@ -52,7 +52,7 @@ By default, the application will use `bootctl` to distinguish which bootloader (
 
 The bootloader settings can be overridden using the Advanced settings window.
 
-![Advanced settings](https://github.com/DeltaCopy/archlinux-kernel-manager-dev/assets/121581829/3002012c-a721-4b46-bdc0-c7d64f378050)
+![Advanced settings](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/e37a97b3-da11-4e3c-8592-51ad72cfe143)
 
 # Default configuration file
 

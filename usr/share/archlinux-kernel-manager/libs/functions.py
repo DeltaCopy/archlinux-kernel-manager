@@ -710,10 +710,10 @@ def is_thread_alive(thread_name):
     return False
 
 
-# print running threads
-def print_running_threads():
+# print all threads
+def print_all_threads():
     for thread in threading.enumerate():
-        logger.info("Thread alive = %s" % thread.name)
+        logger.info("Thread = %s and state is %s" % (thread.name,thread.is_alive()))
 
 
 
@@ -739,13 +739,14 @@ def update_progress_textview(self, line):
 
 
 # =====================================================
-#               MESSAGES QUEUE: UPDATE TEXTVIEW IN RT
+#               MESSAGES QUEUE: MONITOR THEN UPDATE TEXTVIEW
 # =====================================================
 
 def monitor_messages_queue(self):
     try:
         while True:
             message = self.messages_queue.get()
+
             GLib.idle_add(
                 update_progress_textview,
                 self,
