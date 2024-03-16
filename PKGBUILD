@@ -2,8 +2,8 @@
 pkgname=archlinux-kernel-manager
 destname1="/usr"
 licensedir="/usr/share/archlinux-kernel-manager/licenses/"
-pkgver=07.03
-pkgrel=05
+pkgver=16.03
+pkgrel=06
 pkgdesc="Arch Linux Kernel Manager - Add/Remove Linux kernels"
 arch=('x86_64')
 url="https://github.com/DeltaCopy/${pkgname}"

@@ -1,6 +1,6 @@
 # Arch Linux Kernel Manager
 
-A GTK4 Python application used to install/remove Linux kernels on an Arch based system.
+A GTK4 Python3 application used to install/remove Linux kernels on an Arch based system.
 
 # Official Kernels
 
@@ -109,3 +109,26 @@ Clicking on Update inside Advanced Settings, will force the application to updat
 # Logs
 
 Logs can be found inside `/var/log/archlinux-kernel-manager`
+
+# Required Python modules
+
+- python-tomlkit
+
+# Running the application
+
+Manually means a git clone and running the Python application.
+
+## Manually
+
+These steps are to run the Python application without installing it.
+
+`git clone https://github.com/DeltaCopy/archlinux-kernel-manager`
+`cd archlinux-kernel-manager/usr/share/archlinux-kernel-manager/`
+`sudo python archlinux-kernel-manager.py`
+
+## Installation
+
+`wget https://raw.githubusercontent.com/DeltaCopy/archlinux-kernel-manager/develop/PKGBUILD`
+`makepkg -si`
+
+After installation, run `akm` or `archlinux-kernel-manager` to launch the application.
