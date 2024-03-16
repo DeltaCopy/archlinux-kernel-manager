@@ -123,12 +123,15 @@ Manually means a git clone and running the Python application.
 These steps are to run the Python application without installing it.
 
 `git clone https://github.com/DeltaCopy/archlinux-kernel-manager`
-`cd archlinux-kernel-manager/usr/share/archlinux-kernel-manager/`
+
+`cd archlinux-kernel-manager/usr/share/archlinux-kernel-manager`
+
 `sudo python archlinux-kernel-manager.py`
 
 ## Installation
 
 `wget https://raw.githubusercontent.com/DeltaCopy/archlinux-kernel-manager/develop/PKGBUILD`
+
 `makepkg -si`
 
 After installation, run `akm` or `archlinux-kernel-manager` to launch the application.
