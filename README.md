@@ -106,6 +106,8 @@ Kernel data retrieved from the ALA is stored inside a toml based file inside `$H
 This cached file is updated every 5 days to ensure the application is kept up to date with the latest kernels.
 Clicking on Update inside Advanced Settings, will force the application to update the cache.
 
+This cache file may take a little while to generate since archived Arch kernel package data is being retrieved from the ALA.
+
 # Logs
 
 Logs can be found inside `/var/log/archlinux-kernel-manager`
