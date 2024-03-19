@@ -2,7 +2,7 @@
 pkgname=archlinux-kernel-manager
 destname1="/usr"
 licensedir="/usr/share/archlinux-kernel-manager/licenses/"
-pkgver=16.03
+pkgver=1.0.0
 pkgrel=06
 pkgdesc="Arch Linux Kernel Manager - Add/Remove Linux kernels"
 arch=('x86_64')
