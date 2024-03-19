@@ -70,7 +70,7 @@ class ProgressWindow(Gtk.Window):
         lbl_heading = Gtk.Label(xalign=0.5, yalign=0.5)
         lbl_heading.set_name("label_flowbox_message")
         lbl_heading.set_markup(
-            "<b>Kernel %s: %s %s </b>"
+            "<b>Kernel %s: name = %s | version = %s </b>"
             % (self.action, self.kernel.name, self.kernel.version)
         )
 
@@ -453,7 +453,7 @@ class ProgressWindow(Gtk.Window):
                             self.update_community_list()
 
                         self.label_title.set_markup(
-                            "<b>Kernel %s %s completed</b>" % (kernel, action)
+                            "<b>Kernel %s -headers %s completed</b>" % (kernel, action)
                         )
 
                     else:

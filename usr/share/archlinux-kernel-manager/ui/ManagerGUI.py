@@ -29,6 +29,8 @@ class ManagerGUI(Gtk.ApplicationWindow):
         if self.app_version == "${app_version}":
             self.app_version = "dev"
 
+        fn.logger.info("Version = %s" % self.app_version)
+
         self.set_title(app_name)
         self.set_resizable(True)
         self.set_default_size(950, 650)
