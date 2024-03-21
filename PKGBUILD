@@ -16,6 +16,6 @@ sha256sums=('SKIP')
 package() {
 	install -dm755 ${pkgdir}${_licensedir}${_pkgname}
 	install -m644  ${srcdir}/${pkgname}/LICENSE ${pkgdir}${_licensedir}${_pkgname}
-    sed -i -e s/'${app_version}'/$pkgver/ $srcdir/${pkgname}/usr/share/${pkgname}/archlinux-kernel-manager.py
+	sed -i -e s/'${app_version}'/$pkgver/ $srcdir/${pkgname}/usr/share/${pkgname}/archlinux-kernel-manager.py
 	cp -r ${srcdir}/${pkgname}/${destname} ${pkgdir}
 }

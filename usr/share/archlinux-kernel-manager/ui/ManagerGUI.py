@@ -112,7 +112,7 @@ class ManagerGUI(Gtk.ApplicationWindow):
             fn.create_log_dir()
             fn.get_pacman_repos()
 
-            self.stack = Stack(transition_type="SLIDE_UP")
+            self.stack = Stack(transition_type="OVER_DOWN")
             self.kernel_stack = KernelStack(self)
 
             header_bar = Gtk.HeaderBar()

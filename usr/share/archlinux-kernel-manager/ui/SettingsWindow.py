@@ -41,7 +41,7 @@ class SettingsWindow(Gtk.Window):
 
         lbl_heading = Gtk.Label(xalign=0.5, yalign=0.5)
         lbl_heading.set_name("label_flowbox_message")
-        lbl_heading.set_markup("<b>Advanced settings</b>")
+        lbl_heading.set_text("Advanced settings")
 
         lbl_padding = Gtk.Label(xalign=0.0, yalign=0.0)
         lbl_padding.set_text(" ")
