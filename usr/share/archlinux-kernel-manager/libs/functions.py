@@ -661,7 +661,6 @@ def get_kernels(self):
                     ),
                     daemon=True,
                 ).start()
-              
 
             wait_for_response(response_queue)
             session.close()
@@ -713,13 +712,13 @@ def is_thread_alive(thread_name):
 # print all threads
 def print_all_threads():
     for thread in threading.enumerate():
-        logger.info("Thread = %s and state is %s" % (thread.name,thread.is_alive()))
-
+        logger.info("Thread = %s and state is %s" % (thread.name, thread.is_alive()))
 
 
 # =====================================================
 #               UPDATE TEXTVIEW IN PROGRESS WINDOW
 # =====================================================
+
 
 def update_progress_textview(self, line):
     try:
@@ -741,6 +740,7 @@ def update_progress_textview(self, line):
 # =====================================================
 #               MESSAGES QUEUE: MONITOR THEN UPDATE TEXTVIEW
 # =====================================================
+
 
 def monitor_messages_queue(self):
     try:
@@ -786,6 +786,7 @@ def check_kernel_installed(name):
 # =====================================================
 #               REMOVE KERNEL
 # =====================================================
+
 
 def uninstall(self):
     try:
@@ -895,9 +896,11 @@ def uninstall(self):
     except Exception as e:
         logger.error("Exception in uninstall(): %s" % e)
 
+
 # =====================================================
 #               LIST COMMUNITY KERNELS
 # =====================================================
+
 
 def get_community_kernels(self):
     try:
@@ -950,8 +953,6 @@ def get_community_kernels(self):
 
     except Exception as e:
         logger.error("Exception in get_community_kernels(): %s" % e)
-
-
 
 
 # =====================================================
@@ -1264,7 +1265,9 @@ def update_bootloader(self):
             self.messages_queue.put(event)
 
         elif self.bootloader == "systemd-boot":
-            cmd = ["bootctl", "update"]
+            # cmd = ["bootctl", "update"]
+            # graceful update systemd-boot
+            cmd = ["bootctl", "--no-variables", "--graceful update"]
             event = "%s [INFO]: Running %s\n" % (
                 datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
                 " ".join(cmd),

@@ -42,7 +42,7 @@ By default, the application will use `bootctl` to distinguish which bootloader (
 
 ## systemd-boot
 
-`bootctl update` is run to update the systemd-boot entries
+`bootctl --no-variables ---graceful update` is run to update systemd-boot entries
 
 # Advanced settings
 
