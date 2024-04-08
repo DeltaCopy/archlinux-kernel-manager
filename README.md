@@ -116,6 +116,14 @@ Logs can be found inside `/var/log/archlinux-kernel-manager`
 
 - python-tomlkit
 
+- python-gobject
+
+- python-requests
+
+- python-distro
+
+- python-psutil
+
 # Running the application
 
 ## Installation

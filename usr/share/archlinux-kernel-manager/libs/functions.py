@@ -15,6 +15,7 @@ import psutil
 import json
 import queue
 import pathlib
+import glob
 import tomlkit
 from tomlkit import dumps, load
 from datetime import datetime, timedelta
@@ -1107,6 +1108,33 @@ def get_installed_kernels():
     query_str = ["pacman", "-Q"]
     installed_kernels = []
 
+
+    # look for kernel images inside /boot ?
+    
+    #file /boot/* | grep 'Linux kernel.*boot executable' | sed 's/.*version \([^ ]\+\).*/\1/'
+
+    '''
+    logger.info("Checking /boot for kernel boot images")
+    process_kernel__files_query = subprocess.Popen(
+            ["ls", "/boot"], shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    )
+
+    out, err = process_kernel__files_query.communicate(timeout=process_timeout)
+
+    for file in out.decode("utf-8").splitlines():
+        proc_file = subprocess.Popen(
+            ["file", "/boot/%s" % file], shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        )
+
+        out, err = proc_file.communicate(timeout=process_timeout)
+
+        for line in out.decode("utf-8").splitlines():
+            prop = line.strip().split(":")[1].strip()
+            if prop:
+                if "boot executable" and "Linux kernel" in prop:
+                    print(line.strip())
+    '''             
+
     try:
         process_kernel_query = subprocess.Popen(
             query_str, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE
@@ -1267,7 +1295,7 @@ def update_bootloader(self):
         elif self.bootloader == "systemd-boot":
             # cmd = ["bootctl", "update"]
             # graceful update systemd-boot
-            cmd = ["bootctl", "--no-variables", "--graceful update"]
+            cmd = ["bootctl", "--no-variables", "--graceful", "update"]
             event = "%s [INFO]: Running %s\n" % (
                 datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
                 " ".join(cmd),

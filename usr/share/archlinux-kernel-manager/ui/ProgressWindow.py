@@ -47,7 +47,7 @@ class ProgressWindow(Gtk.Window):
         self.bootloader_grub_cfg = self.manager_gui.bootloader_grub_cfg
 
         self.set_resizable(True)
-        self.set_size_request(850, 600)
+        self.set_size_request(600, 300)
 
         vbox_progress = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         vbox_progress.set_name("box")
@@ -129,7 +129,7 @@ class ProgressWindow(Gtk.Window):
         label_progress_window_desc = Gtk.Label(xalign=0, yalign=0)
 
         label_progress_window_desc.set_markup(
-            f"Do not close this window while a kernel installation/removal activity is in progress\n"
+            f"Do not close this window while a kernel {self.action} activity is in progress\n"
             f"Progress can be monitored in the log above\n"
             f"<b>A reboot is recommended when Linux packages have changed</b>"
         )
@@ -138,7 +138,7 @@ class ProgressWindow(Gtk.Window):
 
         self.label_status = Gtk.Label(xalign=0, yalign=0)
 
-        button_close = Gtk.Button.new_with_label("OK")
+        button_close = Gtk.Button.new_with_label("Close")
         button_close.set_size_request(100, 30)
         button_close.set_halign(Gtk.Align.END)
 
@@ -173,21 +173,12 @@ class ProgressWindow(Gtk.Window):
         hbox_button_close.append(button_close)
         hbox_button_close.set_halign(Gtk.Align.END)
 
-        expander_log = Gtk.Expander()
-        expander_log.set_use_markup(True)
-        expander_log.set_resize_toplevel(False)
-        expander_log.set_expanded(False)
-        expander_log.set_label("<b>Show Log</b>")
-        expander_log.connect("activate", self.on_expand_activated)
-
         self.scrolled_window = Gtk.ScrolledWindow()
         self.scrolled_window.set_propagate_natural_height(True)
         self.scrolled_window.set_propagate_natural_width(True)
         self.scrolled_window.set_policy(
             Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC
         )
-
-        expander_log.set_child(self.scrolled_window)
 
         hbox_notify_revealer = Gtk.Box(
             orientation=Gtk.Orientation.HORIZONTAL, spacing=20
@@ -218,7 +209,7 @@ class ProgressWindow(Gtk.Window):
         self.scrolled_window.set_size_request(300, 300)
 
         vbox_progress.append(self.notify_revealer)
-        vbox_progress.append(expander_log)
+        vbox_progress.append(self.scrolled_window)
         vbox_progress.append(self.hbox_spinner)
         vbox_progress.append(self.label_status)
         vbox_progress.append(hbox_warning)
@@ -362,12 +353,6 @@ class ProgressWindow(Gtk.Window):
                 "Pacman lockfile found, is another pacman process running ?"
             )
 
-    def on_expand_activated(self, widget):
-        if widget.get_expanded() is False:
-            widget.get_label_widget().set_markup("<b>Hide Log</b>")
-
-        else:
-            widget.get_label_widget().set_markup("<b>Show Log</b>")
 
     def timeout(self):
         self.hide_notify()

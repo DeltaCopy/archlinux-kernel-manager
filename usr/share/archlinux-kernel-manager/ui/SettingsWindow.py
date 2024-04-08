@@ -256,7 +256,8 @@ class SettingsWindow(Gtk.Window):
         label_bootloader_warning = Gtk.Label(xalign=0, yalign=0)
         label_bootloader_warning.set_markup(
             f"<span foreground='orange'><b>Warning: Only change this setting if you know what you are doing</b></span>\n"
-            f"<span foreground='orange'><b>When a kernel is installed/removed, the selected bootloader entry will be updated</b></span>"
+            f"<span foreground='orange'><b>Warning: This can break your system</b></span>\n"
+            f"<span foreground='orange'><b>Only the selected Grub/Systemd-boot bootloader entry will be updated</b></span>"
         )
 
         label_settings_bootloader_title = Gtk.Label(xalign=0.5, yalign=0.5)

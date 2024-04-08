@@ -18,6 +18,7 @@ class AboutDialog(Gtk.AboutDialog):
         program_name = "Arch Linux Kernel Manager"
         comments = (
             f"Add/Remove Officially supported Linux kernels on Arch based systems\n"
+            f"Powered by the Arch Linux Archive (a.k.a ALA)\n"
             f"Community based Linux kernels are also supported\n"
             f"This application matches your system theme !\n"
             f"Developed in Python with GTK 4\n"
