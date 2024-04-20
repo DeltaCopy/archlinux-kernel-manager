@@ -7,7 +7,7 @@ from ui.ManagerGUI import ManagerGUI
 
 gi.require_version("Gtk", "4.0")
 
-from gi.repository import Gtk, Gio, GLib
+from gi.repository import Gtk, Gio, GLib, Gdk
 
 base_dir = fn.os.path.dirname(fn.os.path.realpath(__file__))
 
@@ -37,6 +37,10 @@ class Main(Gtk.Application):
             )
 
         display = Gtk.Widget.get_display(win)
+
+        # sourced from /usr/share/icons/hicolor/scalable/apps
+        win.set_icon_name("archlinux-kernel-manager-tux")
+
         provider = Gtk.CssProvider.new()
         css_file = Gio.file_new_for_path(base_dir + "/akm.css")
         provider.load_from_file(css_file)

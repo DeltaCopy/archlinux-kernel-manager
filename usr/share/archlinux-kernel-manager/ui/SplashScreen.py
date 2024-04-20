@@ -8,12 +8,13 @@ base_dir = fn.os.path.abspath(fn.os.path.join(fn.os.path.dirname(__file__), ".."
 
 
 class SplashScreen(Gtk.Window):
-    def __init__(self, **kwargs):
-        # Gtk.Window.__init__(self, Gtk.WindowType.POPUP, title="")
+    def __init__(self, app_name, **kwargs):
         super().__init__(**kwargs)
         self.set_decorated(False)
         self.set_resizable(False)
         self.set_modal(True)
+        self.set_title(app_name)
+        self.set_icon_name("archlinux-kernel-manager-tux")
 
         main_vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=1)
         self.set_child(child=main_vbox)

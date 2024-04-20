@@ -21,7 +21,6 @@ class ManagerGUI(Gtk.ApplicationWindow):
     def __init__(self, app_name, default_context, app_version, **kwargs):
         super().__init__(**kwargs)
 
-
         self.default_context = default_context
 
         self.app_version = app_version
@@ -63,7 +62,7 @@ class ManagerGUI(Gtk.ApplicationWindow):
 
         hbox_notify_revealer.append(self.label_notify_revealer)
 
-        self.splash_screen = SplashScreen()
+        self.splash_screen = SplashScreen(app_name)
 
         try:
             fn.Thread(
@@ -122,9 +121,6 @@ class ManagerGUI(Gtk.ApplicationWindow):
             header_bar.set_show_title_buttons(True)
 
             self.set_titlebar(header_bar)
-
-            # icon sourced from /usr/share/icons/hicolor/48x48/apps
-            self.set_icon_name("akm-tux")
 
             menu_outerbox = Gtk.Box(spacing=6, orientation=Gtk.Orientation.VERTICAL)
             header_bar.pack_end(menu_outerbox)
