@@ -1,5 +1,4 @@
 import sys
-
 import gi
 import os
 import libs.functions as fn
@@ -31,6 +30,7 @@ class ProgressWindow(Gtk.Window):
 
         self.textview = textview
         self.textbuffer = textbuffer
+
         self.kernel_state_queue = fn.Queue()
         self.messages_queue = fn.Queue()
         self.kernel = kernel
@@ -47,7 +47,7 @@ class ProgressWindow(Gtk.Window):
         self.bootloader_grub_cfg = self.manager_gui.bootloader_grub_cfg
 
         self.set_resizable(True)
-        self.set_size_request(850, 600)
+        self.set_size_request(600, 300)
 
         vbox_progress = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         vbox_progress.set_name("box")
@@ -70,7 +70,7 @@ class ProgressWindow(Gtk.Window):
         lbl_heading = Gtk.Label(xalign=0.5, yalign=0.5)
         lbl_heading.set_name("label_flowbox_message")
         lbl_heading.set_markup(
-            "<b>Kernel %s: %s %s </b>"
+            "<b>Kernel %s:  %s | %s </b>"
             % (self.action, self.kernel.name, self.kernel.version)
         )
 
@@ -87,6 +87,9 @@ class ProgressWindow(Gtk.Window):
             image_settings = Gtk.Picture.new_for_filename(
                 os.path.join(base_dir, "images/48x48/akm-remove.png")
             )
+
+            # get kernel version from pacman
+            self.installed_kernel_version = fn.get_kernel_version(self.kernel.name)
 
         image_settings.set_content_fit(content_fit=Gtk.ContentFit.SCALE_DOWN)
         image_settings.set_halign(Gtk.Align.START)
@@ -129,14 +132,16 @@ class ProgressWindow(Gtk.Window):
         label_progress_window_desc = Gtk.Label(xalign=0, yalign=0)
 
         label_progress_window_desc.set_markup(
-            f"Do not close this window while a kernel installation/removal activity is in progress\n"
-            f"Progress can be monitored in the window above\n"
+            f"Do not close this window while a kernel {self.action} activity is in progress\n"
+            f"Progress can be monitored in the log above\n"
             f"<b>A reboot is recommended when Linux packages have changed</b>"
         )
 
         hbox_warning.append(label_progress_window_desc)
 
-        button_close = Gtk.Button.new_with_label("OK")
+        self.label_status = Gtk.Label(xalign=0, yalign=0)
+
+        button_close = Gtk.Button.new_with_label("Close")
         button_close.set_size_request(100, 30)
         button_close.set_halign(Gtk.Align.END)
 
@@ -170,7 +175,6 @@ class ProgressWindow(Gtk.Window):
 
         hbox_button_close.append(button_close)
         hbox_button_close.set_halign(Gtk.Align.END)
-        # button_close.set_sensitive(False)
 
         self.scrolled_window = Gtk.ScrolledWindow()
         self.scrolled_window.set_propagate_natural_height(True)
@@ -194,8 +198,6 @@ class ProgressWindow(Gtk.Window):
 
         hbox_notify_revealer.append(self.label_notify_revealer)
 
-        # self.scrolled_window.set_visible(False)
-
         if self.textview.get_buffer() is not None:
             self.textview = Gtk.TextView()
             self.textview.set_property("editable", False)
@@ -206,12 +208,13 @@ class ProgressWindow(Gtk.Window):
 
             self.textview.set_buffer(self.textbuffer)
             self.scrolled_window.set_child(self.textview)
-        else:
-            self.scrolled_window.set_child(self.textview)
+
+        self.scrolled_window.set_size_request(300, 300)
 
         vbox_progress.append(self.notify_revealer)
         vbox_progress.append(self.scrolled_window)
         vbox_progress.append(self.hbox_spinner)
+        vbox_progress.append(self.label_status)
         vbox_progress.append(hbox_warning)
         vbox_progress.append(vbox_padding)
         vbox_progress.append(hbox_button_close)
@@ -252,15 +255,19 @@ class ProgressWindow(Gtk.Window):
             ]
 
         if fn.check_pacman_lockfile() is False:
-            if not fn.is_thread_alive(fn.thread_monitor_messages):
-                th_monitor_messages_queue = fn.threading.Thread(
-                    name=fn.thread_monitor_messages,
-                    target=fn.monitor_messages_queue,
-                    daemon=True,
-                    args=(self,),
-                )
+            th_monitor_messages_queue = fn.threading.Thread(
+                name=fn.thread_monitor_messages,
+                target=fn.monitor_messages_queue,
+                daemon=True,
+                args=(self,),
+            )
 
-                th_monitor_messages_queue.start()
+            th_monitor_messages_queue.start()
+
+            if fn.is_thread_alive(fn.thread_monitor_messages):
+                self.textbuffer.delete(
+                    self.textbuffer.get_start_iter(), self.textbuffer.get_end_iter()
+                )
 
             if not fn.is_thread_alive(fn.thread_check_kernel_state):
                 th_check_kernel_state = fn.threading.Thread(
@@ -370,6 +377,7 @@ class ProgressWindow(Gtk.Window):
                 message="Please wait for the pacman process to finish",
                 image_path="images/48x48/akm-progress.png",
                 transient_for=self,
+                detailed_message=False,
             )
 
             mw.present()
@@ -383,6 +391,7 @@ class ProgressWindow(Gtk.Window):
                 message="Please wait for the pacman process to finish",
                 image_path="images/48x48/akm-progress.png",
                 transient_for=self,
+                detailed_message=False,
             )
 
             mw.present()
@@ -412,8 +421,6 @@ class ProgressWindow(Gtk.Window):
                         )
                         self.messages_queue.put(event)
 
-                        # self.spinner.set_spinning(False)
-                        # self.hbox_spinner.hide()
                     if returncode == 1:
                         self.errors_found = True
 
@@ -434,15 +441,16 @@ class ProgressWindow(Gtk.Window):
 
                         self.spinner.set_spinning(False)
                         self.hbox_spinner.hide()
+
+                        self.label_status.set_markup("<b>Kernel %s failed</b>" % action)
                 else:
                     if (
                         returncode == 0
                         and "-headers" in kernel
-                        or action == "uninstall"
+                        or action == "uninstall" or action == "install"
                         and self.errors_found is False
                     ):
-                        self.spinner.set_spinning(False)
-                        self.hbox_spinner.hide()
+                       
 
                         fn.update_bootloader(self)
                         self.update_installed_list()
@@ -452,12 +460,19 @@ class ProgressWindow(Gtk.Window):
                             self.update_community_list()
 
                         self.label_title.set_markup(
-                            "<b>Kernel %s %s completed</b>" % (kernel, action)
+                            "<b>Kernel %s -headers %s completed</b>" % (kernel, action)
                         )
 
-                    else:
+                        self.label_status.set_markup(
+                            "<b>Kernel %s completed</b>" % action
+                        )
+
                         self.spinner.set_spinning(False)
                         self.hbox_spinner.hide()
+
+                    # else:
+                    #     self.spinner.set_spinning(False)
+                    #     self.hbox_spinner.hide()
 
                     break
             except Exception as e:
@@ -465,7 +480,6 @@ class ProgressWindow(Gtk.Window):
 
             finally:
                 self.kernel_state_queue.task_done()
-
 
     def update_installed_list(self):
         self.manager_gui.installed_kernels = fn.get_installed_kernels()

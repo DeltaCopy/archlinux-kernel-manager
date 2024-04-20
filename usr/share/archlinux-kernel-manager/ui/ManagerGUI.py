@@ -25,6 +25,11 @@ class ManagerGUI(Gtk.ApplicationWindow):
 
         self.app_version = app_version
 
+        if self.app_version == "${app_version}":
+            self.app_version = "dev"
+
+        fn.logger.info("Version = %s" % self.app_version)
+
         self.set_title(app_name)
         self.set_resizable(True)
         self.set_default_size(950, 650)
@@ -57,7 +62,7 @@ class ManagerGUI(Gtk.ApplicationWindow):
 
         hbox_notify_revealer.append(self.label_notify_revealer)
 
-        self.splash_screen = SplashScreen()
+        self.splash_screen = SplashScreen(app_name)
 
         try:
             fn.Thread(
@@ -106,7 +111,7 @@ class ManagerGUI(Gtk.ApplicationWindow):
             fn.create_log_dir()
             fn.get_pacman_repos()
 
-            self.stack = Stack(transition_type="SLIDE_UP")
+            self.stack = Stack(transition_type="OVER_DOWN")
             self.kernel_stack = KernelStack(self)
 
             header_bar = Gtk.HeaderBar()
@@ -116,9 +121,6 @@ class ManagerGUI(Gtk.ApplicationWindow):
             header_bar.set_show_title_buttons(True)
 
             self.set_titlebar(header_bar)
-
-            # icon sourced from /usr/share/icons/hicolor/48x48/apps
-            self.set_icon_name("akm-tux")
 
             menu_outerbox = Gtk.Box(spacing=6, orientation=Gtk.Orientation.VERTICAL)
             header_bar.pack_end(menu_outerbox)
@@ -185,6 +187,7 @@ class ManagerGUI(Gtk.ApplicationWindow):
                     f"This will cause an issue when updating the bootloader\n"
                     f"Update the configuration file/use the Advanced Settings to change this\n",
                     image_path="images/48x48/akm-error.png",
+                    detailed_message=False,
                     transient_for=self,
                 )
 
@@ -199,6 +202,7 @@ class ManagerGUI(Gtk.ApplicationWindow):
                         f"Update the configuration file\n"
                         f"Or use the Advanced Settings to change this\n",
                         image_path="images/48x48/akm-warning.png",
+                        detailed_message=False,
                         transient_for=self,
                     )
 
@@ -474,7 +478,7 @@ class ManagerGUI(Gtk.ApplicationWindow):
         while self.default_context.pending():
             self.default_context.iteration(True)
 
-        fn.time.sleep(1.0)
+        fn.time.sleep(0.1)
 
         self.queue_load_progress.put(1)
         fn.logger.info("Kernel manager UI loaded")

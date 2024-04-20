@@ -28,7 +28,7 @@ class KernelStack:
 
         lbl_heading = Gtk.Label(xalign=0.5, yalign=0.5)
         lbl_heading.set_name("label_flowbox_message")
-        lbl_heading.set_markup("<b>%s</b>" % "Installed kernels".upper())
+        lbl_heading.set_text("%s" % "Installed kernels".upper())
 
         lbl_padding = Gtk.Label(xalign=0.0, yalign=0.0)
         lbl_padding.set_text(" ")
@@ -307,8 +307,8 @@ class KernelStack:
 
                 lbl_heading = Gtk.Label(xalign=0.5, yalign=0.5)
                 lbl_heading.set_name("label_flowbox_message")
-                lbl_heading.set_markup(
-                    "<b>%s - Verified and official kernels</b>" % kernel.upper()
+                lbl_heading.set_text(
+                    "%s - Verified and official kernels" % kernel.upper()
                 )
 
                 lbl_padding = Gtk.Label(xalign=0.0, yalign=0.0)
@@ -566,8 +566,10 @@ class KernelStack:
 
                 lbl_heading = Gtk.Label(xalign=0.5, yalign=0.5)
                 lbl_heading.set_name("label_flowbox_message")
-                lbl_heading.set_markup(
-                    "<b> %s - Unofficial kernels</b>" % "Community based".upper()
+
+
+                lbl_heading.set_text(
+                    "%s - Unofficial kernels" % "Community based".upper()
                 )
 
                 lbl_padding = Gtk.Label(xalign=0.0, yalign=0.0)

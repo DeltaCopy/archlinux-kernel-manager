@@ -319,10 +319,11 @@ class FlowBox(Gtk.FlowBox):
                     )
                     msg_win = MessageWindow(
                         title="Warning: Uninstall aborted",
-                        message=f"You only have 1 kernel installed.\n"
-                        f"{kernel.name} {kernel.version} is currently active\n",
+                        message=f"You only have 1 kernel installed\n"
+                        f"<b>{kernel.name} {kernel.version}</b> is currently active\n",
                         image_path="images/48x48/akm-remove.png",
                         transient_for=self.manager_gui,
+                        detailed_message=False,
                     )
                     msg_win.present()
                     return True
@@ -336,6 +337,8 @@ class FlowBox(Gtk.FlowBox):
                 title="Warning",
                 message="Pacman lockfile found, which indicates another pacman process is running",
                 transient_for=self.manager_gui,
+                detailed_message=False,
+                image_path="images/48x48/akm-warning.png",
             )
             msg_win.present()
             return True
@@ -471,9 +474,11 @@ class FlowBoxInstalled(Gtk.FlowBox):
             )
             msg_win = MessageWindow(
                 title="Warning: Uninstall aborted",
-                message=f"You only have 1 kernel installed, {installed_kernel.name} {installed_kernel.version} is currently active\n",
+                 message=f"You only have 1 kernel installed\n"
+                        f"<b>{installed_kernel.name} {installed_kernel.version}</b> is currently active\n",
                 image_path="images/48x48/akm-remove.png",
                 transient_for=self.manager_gui,
+                detailed_message=False,
             )
             msg_win.present()
 

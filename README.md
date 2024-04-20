@@ -1,6 +1,6 @@
 # Arch Linux Kernel Manager
 
-A GTK4 Python application used to install/remove Linux kernels on an Arch based system.
+A GTK4 Python3 application used to install/remove Linux kernels on an Arch based system.
 
 # Official Kernels
 
@@ -13,7 +13,7 @@ The following Kernels are supported:
 - linux-rt
 - linux-rt-lts
 
-![Official kernel](https://github.com/DeltaCopy/archlinux-kernel-manager-dev/assets/121581829/bb509540-47ae-4735-968b-89ac330eb9ee)
+![Official kernel](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/c95f1c21-54e2-42b3-a182-759edec07fae)
 
 # Community based Kernels
 
@@ -22,16 +22,14 @@ Community based Kernels are also supported, as long as the necessary Pacman repo
 - linux-xanmod
 - linux-xanmod-lts
 - linux-cachyos
-- linux-ck
 - linux-lts-tkg-bmq
 - linux-lts-tkg-pds
 - linux-lqx
-- linux-ck
 - linux-clear
 - linux-amd
 - linux-nitrous
 
-![Community kernel](https://github.com/DeltaCopy/archlinux-kernel-manager-dev/assets/121581829/cfda3727-178f-4465-aa31-378bce630aee)
+![Community kernel](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/a8db794c-e045-4e75-8496-4f537b2f8e10)
 
 # Bootloader
 
@@ -44,7 +42,7 @@ By default, the application will use `bootctl` to distinguish which bootloader (
 
 ## systemd-boot
 
-`bootctl update` is run to update the systemd-boot entries
+`bootctl --no-variables ---graceful update` is run to update systemd-boot entries
 
 # Advanced settings
 
@@ -52,7 +50,7 @@ By default, the application will use `bootctl` to distinguish which bootloader (
 
 The bootloader settings can be overridden using the Advanced settings window.
 
-![Advanced settings](https://github.com/DeltaCopy/archlinux-kernel-manager-dev/assets/121581829/3002012c-a721-4b46-bdc0-c7d64f378050)
+![Advanced settings](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/e37a97b3-da11-4e3c-8592-51ad72cfe143)
 
 # Default configuration file
 
@@ -108,6 +106,30 @@ Kernel data retrieved from the ALA is stored inside a toml based file inside `$H
 This cached file is updated every 5 days to ensure the application is kept up to date with the latest kernels.
 Clicking on Update inside Advanced Settings, will force the application to update the cache.
 
+This cache file may take a little while to generate since archived Arch kernel package data is being retrieved from the ALA.
+
 # Logs
 
 Logs can be found inside `/var/log/archlinux-kernel-manager`
+
+# Required Python modules
+
+- python-tomlkit
+
+- python-gobject
+
+- python-requests
+
+- python-distro
+
+- python-psutil
+
+# Running the application
+
+## Installation
+
+`wget https://raw.githubusercontent.com/DeltaCopy/archlinux-kernel-manager/develop/PKGBUILD`
+
+`makepkg -si`
+
+After installation, run `akm` or `archlinux-kernel-manager` to launch the application.

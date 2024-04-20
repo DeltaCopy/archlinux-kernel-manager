@@ -69,7 +69,7 @@ class MessageWindow(Gtk.Window):
             self.set_resizable(True)
         else:
             label_message = Gtk.Label(xalign=0, yalign=0)
-            label_message.set_text("%s" % message)
+            label_message.set_markup("%s" % message)
             label_message.set_name("label_flowbox_message")
 
             hbox_image.append(image)

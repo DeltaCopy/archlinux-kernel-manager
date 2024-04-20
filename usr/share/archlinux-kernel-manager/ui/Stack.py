@@ -17,6 +17,8 @@ class Stack(Gtk.Stack):
             transition_type = Gtk.StackTransitionType.CROSSFADE
         if transition_type == "SLIDE_UP":
             transition_type = Gtk.StackTransitionType.SLIDE_UP
+        if transition_type == "SLIDE_DOWN":
+            transition_type = Gtk.StackTransitionType.SLIDE_DOWN
         if transition_type == "OVER_DOWN":
             transition_type = Gtk.StackTransitionType.OVER_DOWN
 
