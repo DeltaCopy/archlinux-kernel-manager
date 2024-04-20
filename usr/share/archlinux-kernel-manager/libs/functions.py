@@ -22,6 +22,7 @@ from datetime import datetime, timedelta
 from logging.handlers import TimedRotatingFileHandler
 from threading import Thread
 from queue import Queue
+from ui.MessageWindow import MessageWindow
 from libs.Kernel import Kernel, InstalledKernel, CommunityKernel
 
 gi.require_version("Gtk", "4.0")
@@ -485,7 +486,11 @@ def read_cache(self):
                         logger.info("Cache is older than 5 days, refreshing ..")
                         refresh_cache(self)
                     else:
-                        logger.debug("Cache is %s days old" % delta.days)
+
+                        if delta.days > 0:
+                            logger.debug("Cache is %s days old" % delta.days)
+                        else:
+                            logger.debug("Cache is newer than 5 days")
 
                         kernels = data["kernel"]
 
@@ -1108,12 +1113,11 @@ def get_installed_kernels():
     query_str = ["pacman", "-Q"]
     installed_kernels = []
 
-
     # look for kernel images inside /boot ?
-    
-    #file /boot/* | grep 'Linux kernel.*boot executable' | sed 's/.*version \([^ ]\+\).*/\1/'
 
-    '''
+    # file /boot/* | grep 'Linux kernel.*boot executable' | sed 's/.*version \([^ ]\+\).*/\1/'
+
+    """
     logger.info("Checking /boot for kernel boot images")
     process_kernel__files_query = subprocess.Popen(
             ["ls", "/boot"], shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE
@@ -1133,7 +1137,7 @@ def get_installed_kernels():
             if prop:
                 if "boot executable" and "Linux kernel" in prop:
                     print(line.strip())
-    '''             
+    """
 
     try:
         process_kernel_query = subprocess.Popen(
@@ -1265,6 +1269,34 @@ def get_boot_loader():
 
 
 # ======================================================================
+#                  GET INSTALLED KERNEL VERSION
+# ======================================================================
+
+
+def get_kernel_version(kernel):
+    cmd = ["pacman", "-Q", kernel]
+
+    try:
+        logger.debug("Running %s" % " ".join(cmd))
+        process = subprocess.run(
+            cmd,
+            shell=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            timeout=process_timeout,
+            universal_newlines=True,
+            bufsize=1,
+        )
+
+        if process.returncode == 0:
+            for line in process.stdout.splitlines():
+                print(line.strip())
+                return line.split(" ")[1]
+    except Exception as e:
+        logger.error("Exception in get_kernel_version(): %s" % e)
+
+
+# ======================================================================
 #                  UPDATE BOOTLOADER ENTRIES
 # ======================================================================
 
@@ -1275,38 +1307,32 @@ def update_bootloader(self):
     try:
         cmd = None
 
+        # kernel-install -add-all / kernel-install remove $kernel_version - this is for systems which do not have any pacman hooks in place
+        # useful for vanilla arch installs
+
+        if self.action == "install":
+            image = "images/48x48/akm-install.png"
+            cmd = ["kernel-install", "add-all"]
+        else:
+            image = "images/48x48/akm-remove.png"
+            cmd = ["kernel-install", "remove", self.installed_kernel_version]
+
         self.label_notify_revealer.set_text("Updating bootloader %s" % self.bootloader)
         self.reveal_notify()
 
         logger.info("Current bootloader = %s" % self.bootloader)
 
-        if self.bootloader == "grub":
-            if self.bootloader_grub_cfg is not None:
-                cmd = ["grub-mkconfig", "-o", self.bootloader_grub_cfg]
-            else:
-                logger.error("Bootloader grub config file not specified")
-
-            event = "%s [INFO]: Running %s\n" % (
-                datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
-                " ".join(cmd),
-            )
-            self.messages_queue.put(event)
-
-        elif self.bootloader == "systemd-boot":
-            # cmd = ["bootctl", "update"]
-            # graceful update systemd-boot
-            cmd = ["bootctl", "--no-variables", "--graceful", "update"]
-            event = "%s [INFO]: Running %s\n" % (
-                datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
-                " ".join(cmd),
-            )
-            self.messages_queue.put(event)
-        else:
-            logger.error("Bootloader is empty / not supported")
-
         if cmd is not None:
-            stdout_lines = []
+
+            event = "%s [INFO]: Running %s\n" % (
+                datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
+                " ".join(cmd),
+            )
+
+            self.messages_queue.put(event)
+
             logger.info("Running %s" % " ".join(cmd))
+
             with subprocess.Popen(
                 cmd,
                 stdout=subprocess.PIPE,
@@ -1318,62 +1344,188 @@ def update_bootloader(self):
                     if process.poll() is not None:
                         break
                     for line in process.stdout:
-                        stdout_lines.append(line.strip())
                         self.messages_queue.put(line)
                         print(line.strip())
 
                     # time.sleep(0.3)
 
                 if process.returncode == 0:
-                    self.label_notify_revealer.set_text(
-                        "Bootloader %s updated" % self.bootloader
-                    )
+                    self.label_notify_revealer.set_text("%s completed" % " ".join(cmd))
                     self.reveal_notify()
 
-                    logger.info("%s update completed" % self.bootloader)
-
-                    event = "%s [INFO]: %s update completed\n" % (
-                        datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
-                        self.bootloader,
-                    )
-                    self.messages_queue.put(event)
-
-                    logger.info("Linux packages have changed a reboot is recommended")
-                    event = "%s [INFO]: <b>#### Linux packages have changed a reboot is recommended ####</b>\n" % datetime.now().strftime(
-                        "%Y-%m-%d-%H-%M-%S"
-                    )
-                    self.messages_queue.put(event)
-
+                    logger.info("%s completed" % " ".join(cmd))
                 else:
-                    if (
-                        "Skipping"
-                        or "same boot loader version in place already." in stdout_lines
-                    ):
-                        logger.info("%s update completed" % self.bootloader)
+                    self.label_notify_revealer.set_text("%s failed" % " ".join(cmd))
+                    self.reveal_notify()
 
-                        event = "%s [INFO]: <b>%s update completed</b>\n" % (
-                            datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
-                            self.bootloader,
-                        )
-                        self.messages_queue.put(event)
-                    else:
+                    logger.error("%s failed" % " ".join(cmd))
+
+            if self.bootloader == "grub":
+                if self.bootloader_grub_cfg is not None:
+                    cmd = ["grub-mkconfig", "-o", self.bootloader_grub_cfg]
+                else:
+                    logger.error("Bootloader grub config file not specified")
+
+                event = "%s [INFO]: Running %s\n" % (
+                    datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
+                    " ".join(cmd),
+                )
+                self.messages_queue.put(event)
+
+            elif self.bootloader == "systemd-boot":
+                # cmd = ["bootctl", "update"]
+                # graceful update systemd-boot
+                cmd = ["bootctl", "--no-variables", "--graceful", "update"]
+                event = "%s [INFO]: Running %s\n" % (
+                    datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
+                    " ".join(cmd),
+                )
+                self.messages_queue.put(event)
+            else:
+                logger.error("Bootloader is empty / not supported")
+
+            if cmd is not None:
+                stdout_lines = []
+                logger.info("Running %s" % " ".join(cmd))
+                with subprocess.Popen(
+                    cmd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    bufsize=1,
+                    universal_newlines=True,
+                ) as process:
+                    while True:
+                        if process.poll() is not None:
+                            break
+                        for line in process.stdout:
+                            stdout_lines.append(line.strip())
+                            self.messages_queue.put(line)
+                            print(line.strip())
+
+                        # time.sleep(0.3)
+
+                    if process.returncode == 0:
                         self.label_notify_revealer.set_text(
-                            "Bootloader %s update failed" % self.bootloader
+                            "Bootloader %s updated" % self.bootloader
                         )
                         self.reveal_notify()
 
-                        event = "%s [ERROR]: <b>%s update failed</b>\n" % (
+                        logger.info("%s update completed" % self.bootloader)
+
+                        event = "%s [INFO]: %s update completed\n" % (
                             datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
                             self.bootloader,
                         )
-
-                        logger.error("%s update failed" % self.bootloader)
-                        logger.error(str(stdout_lines))
                         self.messages_queue.put(event)
+
+                        logger.info(
+                            "Linux packages have changed a reboot is recommended"
+                        )
+                        event = "%s [INFO]: <b>#### Linux packages have changed a reboot is recommended ####</b>\n" % datetime.now().strftime(
+                            "%Y-%m-%d-%H-%M-%S"
+                        )
+                        self.messages_queue.put(event)
+
+                        GLib.idle_add(
+                            show_mw,
+                            self,
+                            "System changes",
+                            f"Kernel {self.action} completed\n"
+                            f"This window can now be closed\n",
+                            image,
+                            priority=GLib.PRIORITY_DEFAULT,
+                        )
+
+                    else:
+                        if (
+                            "Skipping"
+                            or "same boot loader version in place already."
+                            in stdout_lines
+                        ):
+                            logger.info("%s update completed" % self.bootloader)
+
+                            event = "%s [INFO]: <b>%s update completed</b>\n" % (
+                                datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
+                                self.bootloader,
+                            )
+                            self.messages_queue.put(event)
+
+                            GLib.idle_add(
+                                show_mw,
+                                self,
+                                "System changes",
+                                f"Kernel {self.action} completed\n"
+                                f"This window can now be closed\n",
+                                image,
+                                priority=GLib.PRIORITY_DEFAULT,
+                            )
+
+                        else:
+                            self.label_notify_revealer.set_text(
+                                "Bootloader %s update failed" % self.bootloader
+                            )
+                            self.reveal_notify()
+
+                            event = "%s [ERROR]: <b>%s update failed</b>\n" % (
+                                datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
+                                self.bootloader,
+                            )
+
+                            logger.error("%s update failed" % self.bootloader)
+                            logger.error(str(stdout_lines))
+                            self.messages_queue.put(event)
+
+                            GLib.idle_add(
+                                show_mw,
+                                self,
+                                "System changes",
+                                f"Kernel {self.action} failed\n"
+                                f"There have been errors, please review the logs\n",
+                                image,
+                                priority=GLib.PRIORITY_DEFAULT,
+                            )
+
+            else:
+                logger.error("Bootloader update failed")
+
+                GLib.idle_add(
+                    show_mw,
+                    self,
+                    "System changes",
+                    f"Kernel {self.action} failed\n"
+                    f"There have been errors, please review the logs\n",
+                    image,
+                    priority=GLib.PRIORITY_DEFAULT,
+                )
         else:
             logger.error("Bootloader update cannot continue, failed to set command.")
     except Exception as e:
         logger.error("Exception in update_bootloader(): %s" % e)
+
+        GLib.idle_add(
+            show_mw,
+            self,
+            "System changes",
+            f"Kernel {self.action} failed\n"
+            f"There have been errors, please review the logs\n",
+            image,
+            priority=GLib.PRIORITY_DEFAULT,
+        )
+
+
+# ======================================================================
+#                   SHOW MESSAGE WINDOW AFTER BOOTLOADER UPDATE
+# ======================================================================
+def show_mw(self, title, msg, image):
+    mw = MessageWindow(
+        title=title,
+        message=msg,
+        image_path=image,
+        detailed_message=False,
+        transient_for=self,
+    )
+
+    mw.present()
 
 
 # ======================================================================

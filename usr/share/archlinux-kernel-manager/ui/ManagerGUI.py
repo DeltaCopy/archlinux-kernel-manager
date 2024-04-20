@@ -191,6 +191,7 @@ class ManagerGUI(Gtk.ApplicationWindow):
                     f"This will cause an issue when updating the bootloader\n"
                     f"Update the configuration file/use the Advanced Settings to change this\n",
                     image_path="images/48x48/akm-error.png",
+                    detailed_message=False,
                     transient_for=self,
                 )
 
@@ -205,6 +206,7 @@ class ManagerGUI(Gtk.ApplicationWindow):
                         f"Update the configuration file\n"
                         f"Or use the Advanced Settings to change this\n",
                         image_path="images/48x48/akm-warning.png",
+                        detailed_message=False,
                         transient_for=self,
                     )
 

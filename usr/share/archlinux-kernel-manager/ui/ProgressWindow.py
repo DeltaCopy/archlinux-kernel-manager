@@ -88,6 +88,9 @@ class ProgressWindow(Gtk.Window):
                 os.path.join(base_dir, "images/48x48/akm-remove.png")
             )
 
+            # get kernel version from pacman
+            self.installed_kernel_version = fn.get_kernel_version(self.kernel.name)
+
         image_settings.set_content_fit(content_fit=Gtk.ContentFit.SCALE_DOWN)
         image_settings.set_halign(Gtk.Align.START)
 
@@ -353,7 +356,6 @@ class ProgressWindow(Gtk.Window):
                 "Pacman lockfile found, is another pacman process running ?"
             )
 
-
     def timeout(self):
         self.hide_notify()
 
@@ -445,11 +447,10 @@ class ProgressWindow(Gtk.Window):
                     if (
                         returncode == 0
                         and "-headers" in kernel
-                        or action == "uninstall"
+                        or action == "uninstall" or action == "install"
                         and self.errors_found is False
                     ):
-                        self.spinner.set_spinning(False)
-                        self.hbox_spinner.hide()
+                       
 
                         fn.update_bootloader(self)
                         self.update_installed_list()
@@ -466,9 +467,12 @@ class ProgressWindow(Gtk.Window):
                             "<b>Kernel %s completed</b>" % action
                         )
 
-                    else:
                         self.spinner.set_spinning(False)
                         self.hbox_spinner.hide()
+
+                    # else:
+                    #     self.spinner.set_spinning(False)
+                    #     self.hbox_spinner.hide()
 
                     break
             except Exception as e:
