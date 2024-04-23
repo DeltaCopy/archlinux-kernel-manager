@@ -33,6 +33,8 @@ Community based Kernels are also supported, as long as the necessary Pacman repo
 
 # Bootloader
 
+Only Grub and systemd-boot bootloaders are supported.
+
 After a successful install/removal of a kernel the relevant bootloader entries are updated.
 By default, the application will use `bootctl` to distinguish which bootloader (Grub/systemd-boot) is currently being used.
 
@@ -103,8 +105,8 @@ Further details on un-official kernels can be found on https://wiki.archlinux.or
 
 Kernel data retrieved from the ALA is stored inside a toml based file inside `$HOME/.cache/archlinux-kernel-manager/kernels.toml`
 
-This cached file is updated every 5 days to ensure the application is kept up to date with the latest kernels.
-Clicking on Update inside Advanced Settings, will force the application to update the cache.
+This cached file is updated automatically every 5 days to ensure the application is kept up to date with the latest kernels.
+Using the Update switch inside Advanced Settings, will force the application to update the cache.
 
 This cache file may take a little while to generate since archived Arch kernel package data is being retrieved from the ALA.
 
@@ -124,12 +126,12 @@ Logs can be found inside `/var/log/archlinux-kernel-manager`
 
 - python-psutil
 
-# Running the application
-
-## Installation
+# Installing the application
 
 `wget https://raw.githubusercontent.com/DeltaCopy/archlinux-kernel-manager/develop/PKGBUILD`
 
 `makepkg -si`
 
-After installation, run `akm` or `archlinux-kernel-manager` to launch the application.
+# Running the application
+
+Run `akm` or `archlinux-kernel-manager` to launch the application.

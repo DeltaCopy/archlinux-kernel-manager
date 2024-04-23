@@ -22,13 +22,13 @@ class FlowBox(Gtk.FlowBox):
 
         self.manager_gui = manager_gui
 
-        #self.set_row_spacing(5)
-        #self.set_activate_on_single_click(True)
-        #self.connect("child-activated", self.on_child_activated)
+        # self.set_row_spacing(5)
+        # self.set_activate_on_single_click(True)
+        # self.connect("child-activated", self.on_child_activated)
 
         self.set_selection_mode(Gtk.SelectionMode.NONE)
 
-        #self.set_homogeneous(True)
+        # self.set_homogeneous(True)
         self.set_max_children_per_line(2)
         self.set_min_children_per_line(2)
         self.kernel_count = 0
@@ -44,8 +44,6 @@ class FlowBox(Gtk.FlowBox):
 
         if self.source == "community":
             self.flowbox_community()
-
-
 
     def flowbox_community(self):
         for community_kernel in self.kernel:
@@ -273,8 +271,9 @@ class FlowBox(Gtk.FlowBox):
             if switch.get_state() is False:  # and switch.get_active() is True:
                 # self.fn.download_kernel_package(kernel)
                 message_window = FlowBoxMessageWindow(
-                    title="Install kernel ?",
-                    message="Install <b>%s-%s</b>" % (kernel.name, kernel.version),
+                    title="Kernel installation",
+                    message="Confirm install of <b>%s-%s ? </b>"
+                    % (kernel.name, kernel.version),
                     action="install",
                     kernel=kernel,
                     transient_for=self.manager_gui,
@@ -296,8 +295,9 @@ class FlowBox(Gtk.FlowBox):
 
                 if len(installed_kernels) > 1:
                     message_window = FlowBoxMessageWindow(
-                        title="Remove kernel ?",
-                        message="Remove <b>%s-%s</b>" % (kernel.name, kernel.version),
+                        title="Kernel uninstallation",
+                        message="Confirm removal of <b>%s-%s ? </b>"
+                        % (kernel.name, kernel.version),
                         action="uninstall",
                         kernel=kernel,
                         transient_for=self.manager_gui,
@@ -474,8 +474,8 @@ class FlowBoxInstalled(Gtk.FlowBox):
             )
             msg_win = MessageWindow(
                 title="Warning: Uninstall aborted",
-                 message=f"You only have 1 kernel installed\n"
-                        f"<b>{installed_kernel.name} {installed_kernel.version}</b> is currently active\n",
+                message=f"You only have 1 kernel installed\n"
+                f"<b>{installed_kernel.name} {installed_kernel.version}</b> is currently active\n",
                 image_path="images/48x48/akm-remove.png",
                 transient_for=self.manager_gui,
                 detailed_message=False,
@@ -504,6 +504,7 @@ class FlowBoxMessageWindow(Gtk.Window):
         self.set_modal(modal=True)
         self.set_resizable(False)
         self.set_size_request(350, 100)
+        self.set_icon_name("archlinux-kernel-manager-tux")
 
         self.textview = textview
         self.textbuffer = textbuffer

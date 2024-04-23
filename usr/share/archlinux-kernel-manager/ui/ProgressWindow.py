@@ -129,15 +129,15 @@ class ProgressWindow(Gtk.Window):
 
         hbox_warning.append(image_warning)
 
-        label_progress_window_desc = Gtk.Label(xalign=0, yalign=0)
+        self.label_progress_window_desc = Gtk.Label(xalign=0, yalign=0)
 
-        label_progress_window_desc.set_markup(
+        self.label_progress_window_desc.set_markup(
             f"Do not close this window while a kernel {self.action} activity is in progress\n"
             f"Progress can be monitored in the log above\n"
             f"<b>A reboot is recommended when Linux packages have changed</b>"
         )
 
-        hbox_warning.append(label_progress_window_desc)
+        hbox_warning.append(self.label_progress_window_desc)
 
         self.label_status = Gtk.Label(xalign=0, yalign=0)
 
@@ -429,7 +429,7 @@ class ProgressWindow(Gtk.Window):
 
                         fn.logger.error("Kernel %s failed" % action)
 
-                        event = "%s [ERROR]: <b>Kernel %s failed</b>\n" % (
+                        event = "%s <b>[ERROR]: Kernel %s failed</b>\n" % (
                             fn.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
                             action,
                         )
@@ -442,15 +442,40 @@ class ProgressWindow(Gtk.Window):
                         self.spinner.set_spinning(False)
                         self.hbox_spinner.hide()
 
-                        self.label_status.set_markup("<b>Kernel %s failed</b>" % action)
+                        self.label_status.set_markup("<span foreground='orange'> <b>Kernel %s failed</b></span>" % action)
+
+                        # undo action here if action == install
+
+                        event = (
+                            "%s <b>[INFO]: Attempting to undo any system changes made</b>\n"
+                            % (fn.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),)
+                        )
+
+                        self.messages_queue.put(event)
+
+                        if action == "install":
+                            fn.logger.info("Installation failed, attempting uninstall of previous system changes")
+                            self.set_title("Kernel installation failed")
+
+                            fn.uninstall(self)
+                        
+                        self.spinner.set_spinning(False)
+                        self.hbox_spinner.hide()
+
+                        self.label_progress_window_desc.set_markup(
+                            f"<b>This window can be now closed</b>\n"
+                            f"<b>A reboot is recommended when Linux packages have changed</b>"
+                        )
+
+                        break
                 else:
                     if (
                         returncode == 0
                         and "-headers" in kernel
-                        or action == "uninstall" or action == "install"
+                        or action == "uninstall"
+                        or action == "install"
                         and self.errors_found is False
                     ):
-                       
 
                         fn.update_bootloader(self)
                         self.update_installed_list()
@@ -464,11 +489,16 @@ class ProgressWindow(Gtk.Window):
                         )
 
                         self.label_status.set_markup(
-                            "<b>Kernel %s completed</b>" % action
+                            "<span foreground='orange'><b>Kernel %s completed</b></span>" % action
                         )
 
                         self.spinner.set_spinning(False)
                         self.hbox_spinner.hide()
+
+                        self.label_progress_window_desc.set_markup(
+                            f"<b>This window can be now closed</b>\n"
+                            f"<b>A reboot is recommended when Linux packages have changed</b>"
+                        )
 
                     # else:
                     #     self.spinner.set_spinning(False)

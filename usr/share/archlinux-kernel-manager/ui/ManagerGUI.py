@@ -245,10 +245,12 @@ class ManagerGUI(Gtk.ApplicationWindow):
         fn.logger.info("Starting pacman db synchronization thread")
         self.queue_load_progress.put("Starting pacman db synchronization")
 
-        fn.Thread(
-            target=self.pacman_db_sync,
-            daemon=True,
-        ).start()
+        self.pacman_db_sync()
+
+        # fn.Thread(
+        #     target=self.pacman_db_sync,
+        #     daemon=True,
+        # ).start()
 
         fn.logger.info("Starting get community kernels thread")
         self.queue_load_progress.put("Getting community based Linux kernels")

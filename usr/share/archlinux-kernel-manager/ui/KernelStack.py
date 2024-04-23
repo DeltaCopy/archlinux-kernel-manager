@@ -389,7 +389,7 @@ class KernelStack:
 
     def flowbox_filter_installed(self, search_entry):
         def filter_func(fb_child, text):
-            if search_entry.get_name() == "search_entry_installedy":
+            if search_entry.get_name() == "search_entry_installed":
                 if text in fb_child.get_name():
                     return True
                 else:
@@ -566,7 +566,6 @@ class KernelStack:
 
                 lbl_heading = Gtk.Label(xalign=0.5, yalign=0.5)
                 lbl_heading.set_name("label_flowbox_message")
-
 
                 lbl_heading.set_text(
                     "%s - Unofficial kernels" % "Community based".upper()

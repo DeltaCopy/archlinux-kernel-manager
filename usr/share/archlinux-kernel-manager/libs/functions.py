@@ -373,9 +373,33 @@ def install_archive_kernel(self):
                     time.sleep(0.3)
 
             error = False
+
             for log in event_log:
+                if "installation finished. no error reported." in log:
+                    error = False
+                    break
                 if "error" in log:
+
+                    event = (
+                        "%s <b>[ERROR]: Errors have been encountered during installation</b>\n"
+                        % (datetime.now().strftime("%Y-%m-%d-%H-%M-%S"))
+                    )
+
+                    self.messages_queue.put(event)
+
                     error = True
+
+                    GLib.idle_add(
+                        show_mw,
+                        self,
+                        "System changes",
+                        f"Kernel {self.action} failed\n"
+                        f"<b>There have been errors, please review the logs</b>\n",
+                        "images/48x48/akm-warning.png",
+                        priority=GLib.PRIORITY_DEFAULT,
+                    )
+
+                    break
 
             # query to check if kernel installed
             if "headers" in pkg_archive_url:
@@ -444,7 +468,17 @@ def install_archive_kernel(self):
         self.kernel_state_queue.put(None)
 
     except Exception as e:
-        logger.error("Exception in install_official_kernel(): %s" % e)
+        logger.error("Exception in install_archive_kernel(): %s" % e)
+
+        GLib.idle_add(
+            show_mw,
+            self,
+            "System changes",
+            f"Kernel {self.action} failed\n"
+            f"There have been errors, please review the logs\n",
+            "images/48x48/akm-warning.png",
+            priority=GLib.PRIORITY_DEFAULT,
+        )
 
 
 def refresh_cache(self):
@@ -496,16 +530,25 @@ def read_cache(self):
 
                         if len(kernels) > 1:
                             for k in kernels:
-                                cached_kernels_list.append(
-                                    Kernel(
-                                        k["name"],
-                                        k["headers"],
-                                        k["version"],
-                                        k["size"],
-                                        k["last_modified"],
-                                        k["file_format"],
+
+                                # any kernels older than 2 years (currently linux v4.x or earlier) are deemed eol so ignore them
+                                if (
+                                    datetime.now().year
+                                    - datetime.strptime(
+                                        k["last_modified"], "%d-%b-%Y %H:%M"
+                                    ).year
+                                    <= 2
+                                ):
+                                    cached_kernels_list.append(
+                                        Kernel(
+                                            k["name"],
+                                            k["headers"],
+                                            k["version"],
+                                            k["size"],
+                                            k["last_modified"],
+                                            k["file_format"],
+                                        )
                                     )
-                                )
 
                             name = None
                             headers = None
@@ -613,7 +656,7 @@ def parse_archive_html(response, linux_kernel):
 
 def wait_for_response(response_queue):
     while True:
-        time.sleep(0.1)
+        # time.sleep(0.1)
         items = response_queue.get()
 
         # error break from loop
@@ -797,7 +840,9 @@ def check_kernel_installed(name):
 def uninstall(self):
     try:
         kernel_installed = check_kernel_installed(self.kernel.name)
+        logger.info("Kernel installed = %s" % kernel_installed)
         kernel_headers_installed = check_kernel_installed(self.kernel.name + "-headers")
+        logger.info("Kernel headers installed = %s" % kernel_headers_installed)
 
         uninstall_cmd_str = None
         event_log = []
@@ -817,6 +862,8 @@ def uninstall(self):
         if kernel_installed == 0:
             logger.info("Kernel is not installed, uninstall not required")
             self.kernel_state_queue.put((0, "uninstall", self.kernel.name))
+
+        logger.debug("Uninstall cmd = %s" % uninstall_cmd_str)
 
         # check if kernel, and kernel header is actually installed
         if uninstall_cmd_str is not None:
@@ -1009,6 +1056,10 @@ def install_community_kernel(self):
                     time.sleep(0.3)
 
             for log in event_log:
+                if "installation finished. no error reported." in log:
+                    error = False
+                    break
+
                 if "error" in log:
                     error = True
 

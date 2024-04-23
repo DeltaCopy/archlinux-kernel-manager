@@ -1,8 +1,8 @@
 # Maintainer: DeltaCopy (fennec)
-pkgname=archlinux-kernel-manager
+pkgname="archlinux-kernel-manager"
 destname="/usr"
 licensedir="/usr/share/archlinux-kernel-manager/licenses/"
-pkgver=1.0.4
+pkgver=1.0.5
 pkgrel=1
 pkgdesc="Arch Linux Kernel Manager - Add/Remove Linux kernels"
 arch=('x86_64')
@@ -11,8 +11,9 @@ license=('GPL3')
 depends=('python-gobject' 'polkit-gnome' 'python-requests' 'python-tomlkit' 'python-distro' 'python-psutil')
 makedepends=('git')
 options=(!strip !emptydirs)
-source=("${pkgname}::git+${url}")
+source=("${pkgname}::git+${url}#tag=${pkgver}")
 sha256sums=('SKIP')
+
 package() {
 	install -dm755 ${pkgdir}${_licensedir}${_pkgname}
 	install -m644  ${srcdir}/${pkgname}/LICENSE ${pkgdir}${_licensedir}${_pkgname}
