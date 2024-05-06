@@ -25,7 +25,6 @@ class SplashScreen(Gtk.Window):
             )
         )
 
-        tux_icon.set_opacity(0.5)
         tux_icon.set_content_fit(content_fit=Gtk.ContentFit.FILL)
 
         main_vbox.append(tux_icon)

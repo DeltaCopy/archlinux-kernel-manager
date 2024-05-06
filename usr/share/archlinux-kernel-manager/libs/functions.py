@@ -12,13 +12,11 @@ import subprocess
 import gi
 import datetime
 import psutil
-import json
 import queue
 import pathlib
-import glob
 import tomlkit
 from tomlkit import dumps, load
-from datetime import datetime, timedelta
+from datetime import timedelta
 from logging.handlers import TimedRotatingFileHandler
 from threading import Thread
 from queue import Queue
@@ -31,7 +29,7 @@ from gi.repository import GLib
 
 base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
-archlinux_package_search_url = (
+latest_archlinux_package_search_url = (
     "https://archlinux.org/packages/search/json/?name=${PACKAGE_NAME}"
 )
 archlinux_mirror_archive_url = "https://archive.archlinux.org"
@@ -73,8 +71,8 @@ thread_refresh_cache = "thread_refresh_cache"
 thread_refresh_ui = "thread_refresh_ui"
 
 cache_dir = "%s/.cache/archlinux-kernel-manager" % home
-
 cache_file = "%s/kernels.toml" % cache_dir
+cache_update = "%s/update" % cache_dir
 
 log_dir = "/var/log/archlinux-kernel-manager"
 event_log_file = "%s/event.log" % log_dir
@@ -106,12 +104,130 @@ logger.addHandler(ch)
 
 
 # =====================================================
+#              CHECK FOR KERNEL UPDATES
+# =====================================================
+def get_latest_kernel_updates(self):
+    logger.info("Getting latest kernel versions")
+    try:
+        last_update_check = None
+        fetch_update = False
+        cache_timestamp = None
+
+        if os.path.exists(cache_file):
+            with open(cache_file, "rb") as f:
+                data = tomlkit.load(f)
+
+                if len(data) == 0:
+                    logger.error(
+                        "%s is empty, delete it and open the app again" % cache_file
+                    )
+
+                if len(data) > 0:
+                    cache_timestamp = data["timestamp"]
+
+            if not os.path.exists(cache_update):
+                last_update_check = datetime.datetime.now().strftime("%Y-%m-%d")
+                with open(cache_update, mode="w", encoding="utf-8") as f:
+                    f.write("%s\n" % last_update_check)
+
+                permissions(cache_dir)
+
+            else:
+                with open(cache_update, mode="r", encoding="utf-8") as f:
+                    last_update_check = f.read().strip()
+
+                with open(cache_update, mode="w", encoding="utf-8") as f:
+                    f.write("%s\n" % datetime.datetime.now().strftime("%Y-%m-%d"))
+
+                permissions(cache_dir)
+
+            logger.info(
+                "Linux package update last fetched on %s"
+                % datetime.datetime.strptime(last_update_check, "%Y-%m-%d").date()
+            )
+
+            if (
+                datetime.datetime.strptime(last_update_check, "%Y-%m-%d").date()
+                < datetime.datetime.now().date()
+            ):
+
+                logger.info(
+                    "Fetching Linux package update from %s"
+                    % latest_archlinux_package_search_url.replace(
+                        "${PACKAGE_NAME}", "linux"
+                    )
+                )
+
+                response = requests.get(
+                    latest_archlinux_package_search_url.replace(
+                        "${PACKAGE_NAME}", "linux"
+                    ),
+                    headers=headers,
+                    allow_redirects=True,
+                    timeout=60,
+                    stream=True,
+                )
+
+                if response.status_code == 200:
+                    if response.json() is not None:
+                        if len(response.json()["results"]) > 0:
+                            if response.json()["results"][0]["last_update"]:
+                                logger.info(
+                                    "Linux kernel package last update = %s"
+                                    % datetime.datetime.strptime(
+                                        response.json()["results"][0]["last_update"],
+                                        "%Y-%m-%dT%H:%M:%S.%f%z",
+                                    ).date()
+                                )
+                                if (
+                                    datetime.datetime.strptime(
+                                        response.json()["results"][0]["last_update"],
+                                        "%Y-%m-%dT%H:%M:%S.%f%z",
+                                    ).date()
+                                ) > (
+                                    datetime.datetime.strptime(
+                                        cache_timestamp, "%Y-%m-%d %H-%M-%S"
+                                    ).date()
+                                ):
+                                    logger.info(
+                                        "Linux kernel package updated, cache refresh required"
+                                    )
+
+                                    refresh_cache(self)
+
+                                    return False
+
+                                else:
+                                    logger.info(
+                                        "Linux kernel package not updated, cache refresh not required"
+                                    )
+
+                                    return False
+
+            else:
+                logger.info("Kernel update check not required")
+                return False
+
+        else:
+            return True
+
+    except Exception as e:
+        logger.error("Exception in get_latest_kernel_updates(): %s" % e)
+        return True
+
+
+# =====================================================
 #              CACHE LAST MODIFIED
 # =====================================================
 def get_cache_last_modified():
     try:
         if os.path.exists(cache_file):
-            return time.ctime(pathlib.Path(cache_file).stat().st_mtime)
+            # Sat May  4 15:00:27 2024
+            return datetime.datetime.strptime(
+                time.ctime(pathlib.Path(cache_file).stat().st_mtime),
+                "%a %b  %w %H:%M:%S %Y",
+            )
+
         else:
             return "Cache file does not exist"
     except Exception as e:
@@ -241,7 +357,8 @@ def write_cache():
             with open(cache_file, "w", encoding="utf-8") as f:
                 f.write('title = "Arch Linux Kernels"\n\n')
                 f.write(
-                    'timestamp = "%s"\n' % datetime.now().strftime("%Y-%m-%d %H-%M-%S")
+                    'timestamp = "%s"\n'
+                    % datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S")
                 )
                 f.write('source = "%s"\n\n' % archlinux_mirror_archive_url)
 
@@ -263,80 +380,13 @@ def write_cache():
         logger.error("Exception in write_cache(): %s" % e)
 
 
-def _remove_kernel_headers(self):
-    try:
-        logger.info("Removing previous Linux kernel headers")
-        remove_cmd_str = [
-            "pacman",
-            "-Rs",
-            "%s-headers" % self.kernel.name,
-            "--noconfirm",
-        ]
-
-        logger.info("Running %s" % remove_cmd_str)
-
-        event = "%s [INFO]: Running %s\n" % (
-            datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
-            " ".join(remove_cmd_str),
-        )
-
-        event_log = []
-        self.messages_queue.put(event)
-
-        with subprocess.Popen(
-            remove_cmd_str,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            bufsize=1,
-            universal_newlines=True,
-        ) as process:
-            while True:
-                if process.poll() is not None:
-                    break
-                for line in process.stdout:
-                    print(line.strip())
-                    self.messages_queue.put(line)
-                    event_log.append(line.lower().strip())
-
-                time.sleep(0.3)
-
-        error = False
-        for log in event_log:
-            if "error" in log:
-                error = True
-
-        if not check_kernel_installed(self.kernel.name + "-headers") and error is False:
-            logger.info("[Kernel-Headers] removal completed")
-            self.kernel_state_queue.put((0, "uninstall", self.kernel.name + "-headers"))
-            self.messages_queue.put(event)
-        else:
-            logger.error("[Kernel-Headers] removal failed")
-
-            self.kernel_state_queue.put((1, "uninstall", self.kernel.name + "-headers"))
-
-            event = "%s [ERROR]: [Kernel-Headers] Removal of %s-headers failed\n" % (
-                datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
-                self.kernel.name,
-            )
-
-            self.errors_found = True
-            self.messages_queue.put(event)
-
-        error = False
-        for log in event_log:
-            if "error" in log:
-                error = True
-
-    except Exception as e:
-        logger.error("Exception in remove_kernel_headers(): %s" % e)
-
-
 # install from the ALA
 def install_archive_kernel(self):
     try:
         for pkg_archive_url in self.official_kernels:
             if self.errors_found is True:
                 break
+
             install_cmd_str = [
                 "pacman",
                 "-U",
@@ -345,10 +395,12 @@ def install_archive_kernel(self):
                 "--needed",
             ]
 
+            wait_for_pacman_process()
+
             logger.info("Running %s" % install_cmd_str)
 
             event = "%s [INFO]: Running %s\n" % (
-                datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
+                datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
                 " ".join(install_cmd_str),
             )
 
@@ -373,19 +425,21 @@ def install_archive_kernel(self):
                     time.sleep(0.3)
 
             error = False
-
+            # check errors and indicate to user install failed
             for log in event_log:
                 if "installation finished. no error reported." in log:
                     error = False
                     break
-                if "error" in log:
+                if "error" in log or "errors" in log:
 
                     event = (
                         "%s <b>[ERROR]: Errors have been encountered during installation</b>\n"
-                        % (datetime.now().strftime("%Y-%m-%d-%H-%M-%S"))
+                        % (datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"))
                     )
 
                     self.messages_queue.put(event)
+
+                    self.errors_found = True
 
                     error = True
 
@@ -407,47 +461,37 @@ def install_archive_kernel(self):
                     check_kernel_installed(self.kernel.name + "-headers")
                     and error is False
                 ):
-                    logger.info("[Kernel-Headers] installation completed")
 
                     self.kernel_state_queue.put(
                         (0, "install", self.kernel.name + "-headers")
                     )
 
-                    event = (
-                        "%s [INFO]: [Kernel-Headers] Installation of %s-headers completed\n"
-                        % (
-                            datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
-                            self.kernel.name,
-                        )
+                    event = "%s [INFO]: Installation of %s-headers completed\n" % (
+                        datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
+                        self.kernel.name,
                     )
 
                     self.messages_queue.put(event)
 
                 else:
-                    logger.error("[Kernel-Headers] installation failed")
-
                     self.kernel_state_queue.put(
                         (1, "install", self.kernel.name + "-headers")
                     )
 
-                    event = (
-                        "%s [ERROR]: [Kernel-Headers] Installation of %s-headers failed\n"
-                        % (
-                            datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
-                            self.kernel.name,
-                        )
+                    event = "%s [ERROR]: Installation of %s-headers failed\n" % (
+                        datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
+                        self.kernel.name,
                     )
 
                     self.errors_found = True
                     self.messages_queue.put(event)
 
             else:
-                if check_kernel_installed(self.kernel.name) and error == False:
-                    logger.info("[Kernel] Installation completed")
+                if check_kernel_installed(self.kernel.name) and error is False:
                     self.kernel_state_queue.put((0, "install", self.kernel.name))
 
-                    event = "%s [INFO]: [Kernel] Installation of %s completed\n" % (
-                        datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
+                    event = "%s [INFO]: Installation of kernel %s completed\n" % (
+                        datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
                         self.kernel.name,
                     )
 
@@ -455,16 +499,16 @@ def install_archive_kernel(self):
 
                 else:
                     self.kernel_state_queue.put((1, "install", self.kernel.name))
-                    logger.error("[Kernel] Installation failed")
 
-                    event = "%s [ERROR]: [Kernel] Installation of %s failed\n" % (
-                        datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
+                    event = "%s [ERROR]: Installation of kernel %s failed\n" % (
+                        datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
                         self.kernel.name,
                     )
 
                     self.messages_queue.put(event)
 
         # signal to say end reached
+        print("end")
         self.kernel_state_queue.put(None)
 
     except Exception as e:
@@ -484,13 +528,13 @@ def install_archive_kernel(self):
 def refresh_cache(self):
     if os.path.exists(cache_file):
         os.remove(cache_file)
-    get_kernels(self)
+    get_official_kernels(self)
     write_cache()
 
 
 def read_cache(self):
     try:
-        timestamp = None
+        self.timestamp = None
         with open(cache_file, "rb") as f:
             data = tomlkit.load(f)
 
@@ -507,14 +551,18 @@ def read_cache(self):
             file_format = None
 
             if len(data) > 0:
-                timestamp = data["timestamp"]
+                self.timestamp = data["timestamp"]
+
+                self.cache_timestamp = data["timestamp"]
 
                 # check date of cache, if it's older than 5 days - refresh
 
-                if timestamp:
-                    timestamp = datetime.strptime(timestamp, "%Y-%m-%d %H-%M-%S")
+                if self.timestamp:
+                    self.timestamp = datetime.datetime.strptime(
+                        self.timestamp, "%Y-%m-%d %H-%M-%S"
+                    )
 
-                    delta = datetime.now() - timestamp
+                    delta = datetime.datetime.now() - self.timestamp
 
                     if delta.days >= cache_days:
                         logger.info("Cache is older than 5 days, refreshing ..")
@@ -531,10 +579,12 @@ def read_cache(self):
                         if len(kernels) > 1:
                             for k in kernels:
 
-                                # any kernels older than 2 years (currently linux v4.x or earlier) are deemed eol so ignore them
+                                # any kernels older than 2 years
+                                # (currently linux v4.x or earlier) are deemed eol so ignore them
+
                                 if (
-                                    datetime.now().year
-                                    - datetime.strptime(
+                                    datetime.datetime.now().year
+                                    - datetime.datetime.strptime(
                                         k["last_modified"], "%d-%b-%Y %H:%M"
                                     ).year
                                     <= 2
@@ -559,7 +609,7 @@ def read_cache(self):
 
                             if len(cached_kernels_list) > 0:
                                 sorted(cached_kernels_list)
-                                logger.info("Kernels read into memory")
+                                logger.info("Kernels cache data processed")
                         else:
                             logger.error(
                                 "Cached file is invalid, remove it and try again"
@@ -688,9 +738,9 @@ def get_response(session, linux_kernel, response_queue, response_content):
         response_queue.put(None)
 
 
-def get_kernels(self):
+def get_official_kernels(self):
     try:
-        if not os.path.exists(cache_file):
+        if not os.path.exists(cache_file) or self.refresh_cache is True:
             session = requests.session()
             response_queue = Queue()
             response_content = {}
@@ -717,13 +767,16 @@ def get_kernels(self):
             for kernel in response_content:
                 parse_archive_html(response_content[kernel], kernel)
 
-            if len(fetched_kernels_dict) > 0:
+            if len(fetched_kernels_dict) > 0 and self.refresh_cache is True:
                 write_cache()
                 read_cache(self)
 
                 self.queue_kernels.put(cached_kernels_list)
+            elif self.refresh_cache is False:
+                logger.info("Cache already processed")
+
             else:
-                logger.warning("Failed to retrieve Linux Kernel list")
+                logger.error("Failed to retrieve Linux Kernel list")
                 self.queue_kernels.put(None)
         else:
             logger.debug("Reading cache file = %s" % cache_file)
@@ -732,7 +785,7 @@ def get_kernels(self):
             self.queue_kernels.put(cached_kernels_list)
 
     except Exception as e:
-        logger.error("Exception in get_linux_kernels(): %s" % e)
+        logger.error("Exception in get_official_kernels(): %s" % e)
 
 
 def wait_for_cache(self):
@@ -822,14 +875,31 @@ def check_kernel_installed(name):
 
         out, err = process_kernel_query.communicate(timeout=process_timeout)
 
+        logger.debug(out.decode("utf-8"))
+
         if process_kernel_query.returncode == 0:
             for line in out.decode("utf-8").splitlines():
                 if line.split(" ")[0] == name:
                     return True
+        else:
+            return False
 
         return False
     except Exception as e:
         logger.error("Exception in check_kernel_installed(): %s" % e)
+
+
+def wait_for_pacman_process():
+
+    timeout = 120
+    i = 0
+    while check_pacman_lockfile():
+        time.sleep(0.1)
+        logger.debug("Pacman lockfile found .. waiting")
+        i += 1
+        if i == timeout:
+            logger.info("Timeout reached")
+            break
 
 
 # =====================================================
@@ -867,10 +937,13 @@ def uninstall(self):
 
         # check if kernel, and kernel header is actually installed
         if uninstall_cmd_str is not None:
+
+            wait_for_pacman_process()
+
             logger.info("Running %s" % uninstall_cmd_str)
 
             event = "%s [INFO]: Running %s\n" % (
-                datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
+                datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
                 " ".join(uninstall_cmd_str),
             )
             self.messages_queue.put(event)
@@ -907,8 +980,9 @@ def uninstall(self):
                         (1, "uninstall", self.kernel.name + "-headers")
                     )
 
-                    event = "%s [ERROR]: Uninstall failed\n" % datetime.now().strftime(
-                        "%Y-%m-%d-%H-%M-%S"
+                    event = (
+                        "%s [ERROR]: Uninstall failed\n"
+                        % datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
                     )
 
                     self.messages_queue.put(event)
@@ -918,7 +992,7 @@ def uninstall(self):
 
                     event = (
                         "%s [INFO]: Uninstall completed\n"
-                        % datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+                        % datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
                     )
 
                     self.messages_queue.put(event)
@@ -927,8 +1001,9 @@ def uninstall(self):
                 if check_kernel_installed(self.kernel.name) is True:
                     self.kernel_state_queue.put((1, "uninstall", self.kernel.name))
 
-                    event = "%s [ERROR]: Uninstall failed\n" % datetime.now().strftime(
-                        "%Y-%m-%d-%H-%M-%S"
+                    event = (
+                        "%s [ERROR]: Uninstall failed\n"
+                        % datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
                     )
 
                     self.messages_queue.put(event)
@@ -938,7 +1013,7 @@ def uninstall(self):
 
                     event = (
                         "%s [INFO]: Uninstall completed\n"
-                        % datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+                        % datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
                     )
 
                     self.messages_queue.put(event)
@@ -987,6 +1062,12 @@ def get_community_kernels(self):
                             version = line.split("Version         :")[1].strip()
                         if line.startswith("Installed Size  :"):
                             install_size = line.split("Installed Size  :")[1].strip()
+                            if "MiB" in install_size:
+                                install_size = round(
+                                    float(install_size.replace("MiB", "").strip())
+                                    * 1.048576,
+                                )
+
                         if line.startswith("Build Date      :"):
                             build_date = line.split("Build Date      :")[1].strip()
 
@@ -1030,7 +1111,7 @@ def install_community_kernel(self):
             logger.info("Running %s" % install_cmd_str)
 
             event = "%s [INFO]: Running %s\n" % (
-                datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
+                datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
                 " ".join(install_cmd_str),
             )
 
@@ -1069,7 +1150,7 @@ def install_community_kernel(self):
                 self.kernel_state_queue.put((0, "install", kernel))
 
                 event = "%s [INFO]: Installation of %s completed\n" % (
-                    datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
+                    datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
                     kernel,
                 )
 
@@ -1081,7 +1162,7 @@ def install_community_kernel(self):
                 self.kernel_state_queue.put((1, "install", kernel))
 
                 event = "%s [ERROR]: Installation of %s failed\n" % (
-                    datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
+                    datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
                     kernel,
                 )
 
@@ -1148,6 +1229,10 @@ def get_installed_kernel_info(package_name):
             for line in out.decode("utf-8").splitlines():
                 if line.startswith("Installed Size  :"):
                     install_size = line.split("Installed Size  :")[1].strip()
+                    if "MiB" in install_size:
+                        install_size = round(
+                            float(install_size.replace("MiB", "").strip()) * 1.048576,
+                        )
                 if line.startswith("Install Date    :"):
                     install_date = line.split("Install Date    :")[1].strip()
             return install_size, install_date
@@ -1163,32 +1248,6 @@ def get_installed_kernel_info(package_name):
 def get_installed_kernels():
     query_str = ["pacman", "-Q"]
     installed_kernels = []
-
-    # look for kernel images inside /boot ?
-
-    # file /boot/* | grep 'Linux kernel.*boot executable' | sed 's/.*version \([^ ]\+\).*/\1/'
-
-    """
-    logger.info("Checking /boot for kernel boot images")
-    process_kernel__files_query = subprocess.Popen(
-            ["ls", "/boot"], shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-    )
-
-    out, err = process_kernel__files_query.communicate(timeout=process_timeout)
-
-    for file in out.decode("utf-8").splitlines():
-        proc_file = subprocess.Popen(
-            ["file", "/boot/%s" % file], shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-        )
-
-        out, err = proc_file.communicate(timeout=process_timeout)
-
-        for line in out.decode("utf-8").splitlines():
-            prop = line.strip().split(":")[1].strip()
-            if prop:
-                if "boot executable" and "Linux kernel" in prop:
-                    print(line.strip())
-    """
 
     try:
         process_kernel_query = subprocess.Popen(
@@ -1355,18 +1414,23 @@ def get_kernel_version(kernel):
 # grub - grub-mkconfig /boot/grub/grub.cfg
 # systemd-boot - bootctl update
 def update_bootloader(self):
+    cmd = None
+
+    if self.action == "install":
+        image = "images/48x48/akm-install.png"
+        cmd = ["kernel-install", "add-all"]
+    else:
+        image = "images/48x48/akm-remove.png"
+        cmd = ["kernel-install", "remove", self.installed_kernel_version]
+
     try:
-        cmd = None
 
-        # kernel-install -add-all / kernel-install remove $kernel_version - this is for systems which do not have any pacman hooks in place
-        # useful for vanilla arch installs
-
-        if self.action == "install":
-            image = "images/48x48/akm-install.png"
-            cmd = ["kernel-install", "add-all"]
-        else:
-            image = "images/48x48/akm-remove.png"
-            cmd = ["kernel-install", "remove", self.installed_kernel_version]
+        """
+        kernel-install -add-all
+        kernel-install remove $kernel_version
+        this is for systems which do not have any pacman hooks in place
+        useful for vanilla arch installs
+        """
 
         self.label_notify_revealer.set_text("Updating bootloader %s" % self.bootloader)
         self.reveal_notify()
@@ -1376,7 +1440,7 @@ def update_bootloader(self):
         if cmd is not None:
 
             event = "%s [INFO]: Running %s\n" % (
-                datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
+                datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
                 " ".join(cmd),
             )
 
@@ -1418,7 +1482,7 @@ def update_bootloader(self):
                     logger.error("Bootloader grub config file not specified")
 
                 event = "%s [INFO]: Running %s\n" % (
-                    datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
+                    datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
                     " ".join(cmd),
                 )
                 self.messages_queue.put(event)
@@ -1428,7 +1492,7 @@ def update_bootloader(self):
                 # graceful update systemd-boot
                 cmd = ["bootctl", "--no-variables", "--graceful", "update"]
                 event = "%s [INFO]: Running %s\n" % (
-                    datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
+                    datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
                     " ".join(cmd),
                 )
                 self.messages_queue.put(event)
@@ -1464,7 +1528,7 @@ def update_bootloader(self):
                         logger.info("%s update completed" % self.bootloader)
 
                         event = "%s [INFO]: %s update completed\n" % (
-                            datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
+                            datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
                             self.bootloader,
                         )
                         self.messages_queue.put(event)
@@ -1472,7 +1536,7 @@ def update_bootloader(self):
                         logger.info(
                             "Linux packages have changed a reboot is recommended"
                         )
-                        event = "%s [INFO]: <b>#### Linux packages have changed a reboot is recommended ####</b>\n" % datetime.now().strftime(
+                        event = "%s [INFO]: <b>#### Linux packages have changed a reboot is recommended ####</b>\n" % datetime.datetime.now().strftime(
                             "%Y-%m-%d-%H-%M-%S"
                         )
                         self.messages_queue.put(event)
@@ -1496,7 +1560,7 @@ def update_bootloader(self):
                             logger.info("%s update completed" % self.bootloader)
 
                             event = "%s [INFO]: <b>%s update completed</b>\n" % (
-                                datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
+                                datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
                                 self.bootloader,
                             )
                             self.messages_queue.put(event)
@@ -1518,7 +1582,7 @@ def update_bootloader(self):
                             self.reveal_notify()
 
                             event = "%s [ERROR]: <b>%s update failed</b>\n" % (
-                                datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
+                                datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
                                 self.bootloader,
                             )
 
@@ -1530,7 +1594,7 @@ def update_bootloader(self):
                                 show_mw,
                                 self,
                                 "System changes",
-                                f"Kernel {self.action} failed\n"
+                                f"Kernel {self.action} failed .. attempting kernel restore\n"
                                 f"There have been errors, please review the logs\n",
                                 image,
                                 priority=GLib.PRIORITY_DEFAULT,
@@ -1553,15 +1617,15 @@ def update_bootloader(self):
     except Exception as e:
         logger.error("Exception in update_bootloader(): %s" % e)
 
-        GLib.idle_add(
-            show_mw,
-            self,
-            "System changes",
-            f"Kernel {self.action} failed\n"
-            f"There have been errors, please review the logs\n",
-            image,
-            priority=GLib.PRIORITY_DEFAULT,
-        )
+        # GLib.idle_add(
+        #     show_mw,
+        #     self,
+        #     "System changes",
+        #     f"Kernel {self.action} failed\n"
+        #     f"There have been errors, please review the logs\n",
+        #     image,
+        #     priority=GLib.PRIORITY_DEFAULT,
+        # )
 
 
 # ======================================================================

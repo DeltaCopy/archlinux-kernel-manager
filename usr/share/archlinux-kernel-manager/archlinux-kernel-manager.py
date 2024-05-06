@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import os
+
 import gi
 import signal
 import libs.functions as fn
@@ -55,6 +57,10 @@ class Main(Gtk.Application):
 
     def do_shutdown(self):
         Gtk.Application.do_shutdown(self)
+        if os.path.exists(lock_file):
+            os.remove(lock_file)
+        if os.path.exists(pid_file):
+            os.remove(pid_file)
 
 
 def signal_handler(sig, frame):

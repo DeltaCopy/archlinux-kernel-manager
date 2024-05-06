@@ -115,8 +115,10 @@ class ManagerGUI(Gtk.ApplicationWindow):
             self.kernel_stack = KernelStack(self)
 
             header_bar = Gtk.HeaderBar()
+
             label_title = Gtk.Label(xalign=0.5, yalign=0.5)
             label_title.set_markup("<b>%s</b>" % app_name)
+
             header_bar.set_title_widget(label_title)
             header_bar.set_show_title_buttons(True)
 
@@ -137,7 +139,7 @@ class ManagerGUI(Gtk.ApplicationWindow):
             action_about.connect("activate", self.on_about)
 
             action_settings = Gio.SimpleAction(name="settings")
-            action_settings.connect("activate", self.on_settings)
+            action_settings.connect("activate", self.on_settings, fn)
 
             self.add_action(action_settings)
 
@@ -153,15 +155,18 @@ class ManagerGUI(Gtk.ApplicationWindow):
 
             self.add_action(action_quit)
 
+            # add shortcut keys
+
+            event_controller_key = Gtk.EventControllerKey.new()
+            event_controller_key.connect("key-pressed", self.key_pressed)
+
+            self.add_controller(event_controller_key)
+
             # overlay = Gtk.Overlay()
             # self.set_child(child=overlay)
 
-            self.vbox = Gtk.Box.new(orientation=Gtk.Orientation.VERTICAL, spacing=12)
-            self.vbox.set_margin_top(margin=12)
-            self.vbox.set_margin_end(margin=12)
-            self.vbox.set_margin_bottom(margin=12)
-            self.vbox.set_margin_start(margin=12)
-            # overlay.set_child(child=self.vbox)
+            self.vbox = Gtk.Box.new(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+            self.vbox.set_name("main")
 
             self.set_child(child=self.vbox)
 
@@ -172,6 +177,10 @@ class ManagerGUI(Gtk.ApplicationWindow):
             self.active_kernel = fn.get_active_kernel()
 
             fn.logger.info("Installed kernels = %s" % len(self.installed_kernels))
+
+            self.refresh_cache = False
+
+            self.refresh_cache = fn.get_latest_kernel_updates(self)
 
             self.start_get_kernels_threads()
 
@@ -212,6 +221,19 @@ class ManagerGUI(Gtk.ApplicationWindow):
             fn.logger.error("Failed to set bootloader, application closing")
             fn.sys.exit(1)
 
+    def key_pressed(self, keyval, keycode, state, userdata):
+        shortcut = Gtk.accelerator_get_label(
+            keycode, keyval.get_current_event().get_modifier_state()
+        )
+
+        # quit application
+        if shortcut in ("Ctrl+Q", "Ctrl+Mod2+Q"):
+            self.destroy()
+
+    def open_settings(self, fn):
+        settings_win = SettingsWindow(fn, self)
+        settings_win.present()
+
     def timeout(self):
         self.hide_notify()
 
@@ -231,13 +253,13 @@ class ManagerGUI(Gtk.ApplicationWindow):
         try:
             fn.Thread(
                 name=fn.thread_get_kernels,
-                target=fn.get_kernels,
+                target=fn.get_official_kernels,
                 daemon=True,
                 args=(self,),
             ).start()
 
         except Exception as e:
-            fn.logger.error("Exception in fn.get_kernels(): %s" % e)
+            fn.logger.error("Exception in thread fn.get_official_kernels(): %s" % e)
         finally:
             self.official_kernels = self.queue_kernels.get()
             self.queue_kernels.task_done()
@@ -246,11 +268,6 @@ class ManagerGUI(Gtk.ApplicationWindow):
         self.queue_load_progress.put("Starting pacman db synchronization")
 
         self.pacman_db_sync()
-
-        # fn.Thread(
-        #     target=self.pacman_db_sync,
-        #     daemon=True,
-        # ).start()
 
         fn.logger.info("Starting get community kernels thread")
         self.queue_load_progress.put("Getting community based Linux kernels")
@@ -318,9 +335,8 @@ class ManagerGUI(Gtk.ApplicationWindow):
                 )
                 break
 
-    def on_settings(self, action, param):
-        settings_win = SettingsWindow(fn, self)
-        settings_win.present()
+    def on_settings(self, action, param, fn):
+        self.open_settings(fn)
 
     def on_about(self, action, param):
         about_dialog = AboutDialog(self)
@@ -410,9 +426,11 @@ class ManagerGUI(Gtk.ApplicationWindow):
 
     def on_quit(self, action, param):
         self.destroy()
+        fn.logger.info("Application quit")
 
     def on_button_quit_response(self, widget):
         self.destroy()
+        fn.logger.info("Application quit")
 
     def load_kernels_gui(self):
         hbox_sep = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
@@ -423,20 +441,19 @@ class ManagerGUI(Gtk.ApplicationWindow):
         if self.official_kernels is None:
             fn.logger.error("Failed to retrieve kernel list")
 
-        # stack_sidebar = Gtk.StackSidebar()
-        stack_sidebar = Gtk.StackSwitcher()
-        stack_sidebar.set_orientation(Gtk.Orientation.HORIZONTAL)
-        stack_sidebar.set_name("stacksidebar_kernel")
+        stack_sidebar = Gtk.StackSidebar()
+        stack_sidebar.set_name("stack_sidebar")
         stack_sidebar.set_stack(self.stack)
 
-        vbox_stack_sidebar = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
-        vbox_stack_sidebar.append(stack_sidebar)
-        vbox_stack_sidebar.append(self.stack)
+        hbox_stack_sidebar = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
+        hbox_stack_sidebar.set_name("hbox_stack_sidebar")
+        hbox_stack_sidebar.append(stack_sidebar)
+        hbox_stack_sidebar.append(self.stack)
 
-        self.vbox.append(vbox_stack_sidebar)
+        self.vbox.append(hbox_stack_sidebar)
 
         button_quit = Gtk.Button.new_with_label("Quit")
-        button_quit.set_size_request(100, 30)
+        # button_quit.set_size_request(100, 30)
         button_quit.connect(
             "clicked",
             self.on_button_quit_response,
@@ -480,7 +497,7 @@ class ManagerGUI(Gtk.ApplicationWindow):
         while self.default_context.pending():
             self.default_context.iteration(True)
 
-        fn.time.sleep(0.1)
+            fn.time.sleep(0.1)
 
         self.queue_load_progress.put(1)
         fn.logger.info("Kernel manager UI loaded")

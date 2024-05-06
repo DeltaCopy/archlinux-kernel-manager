@@ -1,4 +1,4 @@
-# Maintainer: DeltaCopy (fennec)
+# Maintainer: fennec
 pkgname="archlinux-kernel-manager"
 destname="/usr"
 licensedir="/usr/share/archlinux-kernel-manager/licenses/"
@@ -8,7 +8,7 @@ pkgdesc="Arch Linux Kernel Manager - Add/Remove Linux kernels"
 arch=('x86_64')
 url="https://github.com/DeltaCopy/${pkgname}"
 license=('GPL3')
-depends=('python-gobject' 'polkit-gnome' 'python-requests' 'python-tomlkit' 'python-distro' 'python-psutil')
+depends=('python-gobject' 'python-requests' 'python-tomlkit' 'python-distro' 'python-psutil')
 makedepends=('git')
 options=(!strip !emptydirs)
 source=("${pkgname}::git+${url}#tag=${pkgver}")

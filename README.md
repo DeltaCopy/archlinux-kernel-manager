@@ -1,10 +1,14 @@
 # Arch Linux Kernel Manager
 
-A GTK4 Python3 application used to install/remove Linux kernels on an Arch based system.
+A GTK4 Python3 application used to install and remove Linux Kernels on an Arch based system.
+
+Installation and removal of Kernels is carried out using Pacman.
+
+Kernel packages are sourced from the Arch Linux Archive (ALA).
+
+Both official and Un-official community based Kernels are supported.
 
 # Official Kernels
-
-The following Kernels are supported:
 
 - linux
 - linux-lts
@@ -17,7 +21,7 @@ The following Kernels are supported:
 
 # Community based Kernels
 
-Community based Kernels are also supported, as long as the necessary Pacman repositories are configured
+As long as the necessary Pacman repositories are configured these are supported.
 
 - linux-xanmod
 - linux-xanmod-lts

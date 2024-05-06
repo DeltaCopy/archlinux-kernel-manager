@@ -23,8 +23,8 @@ class KernelStack:
         self.search_entries = []
 
     def add_installed_kernels_to_stack(self, reload):
-        vbox_icon_settings = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
-        vbox_icon_settings.set_name("vbox_icon_settings")
+        vbox_header = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
+        vbox_header.set_name("vbox_header")
 
         lbl_heading = Gtk.Label(xalign=0.5, yalign=0.5)
         lbl_heading.set_name("label_flowbox_message")
@@ -35,11 +35,11 @@ class KernelStack:
 
         grid_banner_img = Gtk.Grid()
 
-        image_settings = Gtk.Picture.new_for_filename(
+        image_settings = Gtk.Image.new_from_file(
             os.path.join(base_dir, "images/48x48/akm-install.png")
         )
 
-        image_settings.set_content_fit(content_fit=Gtk.ContentFit.SCALE_DOWN)
+        image_settings.set_icon_size(Gtk.IconSize.LARGE)
         image_settings.set_halign(Gtk.Align.START)
 
         grid_banner_img.attach(image_settings, 0, 1, 1, 1)
@@ -59,7 +59,7 @@ class KernelStack:
             1,
         )
 
-        vbox_icon_settings.append(grid_banner_img)
+        vbox_header.append(grid_banner_img)
 
         label_installed_desc = Gtk.Label(xalign=0, yalign=0)
         label_installed_desc.set_text("Installed Linux kernel and modules")
@@ -119,10 +119,6 @@ class KernelStack:
                     self.manager_gui.vbox_active_installed_kernel,
                     scrolled_window_installed,
                 )
-
-            # while self.manager_gui.default_context.pending():
-            #     self.manager_gui.default_context.iteration(True)
-
         else:
             self.manager_gui.vbox_installed_kernels = Gtk.Box(
                 orientation=Gtk.Orientation.VERTICAL, spacing=5
@@ -172,7 +168,7 @@ class KernelStack:
             scrolled_window_installed.set_child(vbox_installed_flowbox)
 
             # self.manager_gui.vbox_installed_kernels.append(label_installed_title)
-            self.manager_gui.vbox_installed_kernels.append(vbox_icon_settings)
+            self.manager_gui.vbox_installed_kernels.append(vbox_header)
             self.manager_gui.vbox_installed_kernels.append(label_installed_desc)
             self.manager_gui.vbox_installed_kernels.append(label_installed_count)
             self.manager_gui.vbox_installed_kernels.append(vbox_search_entry)
@@ -300,10 +296,8 @@ class KernelStack:
 
                 vbox_active_kernel.append(label_active_kernel)
 
-                vbox_icon_settings = Gtk.Box(
-                    orientation=Gtk.Orientation.VERTICAL, spacing=5
-                )
-                vbox_icon_settings.set_name("vbox_icon_settings")
+                vbox_header = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
+                vbox_header.set_name("vbox_header")
 
                 lbl_heading = Gtk.Label(xalign=0.5, yalign=0.5)
                 lbl_heading.set_name("label_flowbox_message")
@@ -316,11 +310,11 @@ class KernelStack:
 
                 grid_banner_img = Gtk.Grid()
 
-                image_settings = Gtk.Picture.new_for_filename(
+                image_settings = Gtk.Image.new_from_file(
                     os.path.join(base_dir, "images/48x48/akm-verified.png")
                 )
 
-                image_settings.set_content_fit(content_fit=Gtk.ContentFit.SCALE_DOWN)
+                image_settings.set_icon_size(Gtk.IconSize.LARGE)
                 image_settings.set_halign(Gtk.Align.START)
 
                 grid_banner_img.attach(image_settings, 0, 1, 1, 1)
@@ -340,10 +334,10 @@ class KernelStack:
                     1,
                 )
 
-                vbox_icon_settings.append(grid_banner_img)
+                vbox_header.append(grid_banner_img)
 
                 # vbox_kernels.append(label_title)
-                self.manager_gui.vbox_kernels.append(vbox_icon_settings)
+                self.manager_gui.vbox_kernels.append(vbox_header)
                 # self.manager_gui.vbox_kernels.append(label_title)
                 self.manager_gui.vbox_kernels.append(label_desc)
                 self.manager_gui.vbox_kernels.append(label_count)
@@ -355,7 +349,7 @@ class KernelStack:
                 self.manager_gui.vbox_kernels.append(vbox_active_kernel)
 
                 self.manager_gui.stack.add_titled(
-                    self.manager_gui.vbox_kernels, kernel, kernel.capitalize()
+                    self.manager_gui.vbox_kernels, kernel, kernel.title()
                 )
 
     def flowbox_filter_official(self, search_entry):
@@ -411,7 +405,7 @@ class KernelStack:
 
         label_active_kernel = Gtk.Label(xalign=0.5, yalign=0.5)
         label_active_kernel.set_name("label_active_kernel")
-        label_active_kernel.set_text(
+        label_active_kernel.set_markup(
             "Active kernel: %s" % self.manager_gui.active_kernel
         )
         label_active_kernel.set_halign(Gtk.Align.START)
@@ -436,16 +430,16 @@ class KernelStack:
         label_pacman_warning = Gtk.Label(xalign=0, yalign=0)
         label_pacman_warning.set_name("label_community_warning")
 
-        image_warning = Gtk.Picture.new_for_filename(
+        image_warning = Gtk.Image.new_from_file(
             os.path.join(base_dir, "images/48x48/akm-warning.png")
         )
         image_warning.set_name("image_warning")
 
-        image_warning.set_content_fit(content_fit=Gtk.ContentFit.SCALE_DOWN)
+        image_warning.set_icon_size(Gtk.IconSize.LARGE)
         image_warning.set_halign(Gtk.Align.CENTER)
 
         hbox_warning = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
-        hbox_warning.set_name("box")
+        hbox_warning.set_name("hbox_warning")
 
         hbox_warning.append(image_warning)
         # hbox_warning.append(label_pacman_warning)
@@ -559,10 +553,8 @@ class KernelStack:
 
                 vbox_active_kernel.append(label_active_kernel)
 
-                vbox_icon_settings = Gtk.Box(
-                    orientation=Gtk.Orientation.VERTICAL, spacing=5
-                )
-                vbox_icon_settings.set_name("vbox_icon_settings")
+                vbox_header = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
+                vbox_header.set_name("vbox_header")
 
                 lbl_heading = Gtk.Label(xalign=0.5, yalign=0.5)
                 lbl_heading.set_name("label_flowbox_message")
@@ -576,11 +568,11 @@ class KernelStack:
 
                 grid_banner_img = Gtk.Grid()
 
-                image_settings = Gtk.Picture.new_for_filename(
+                image_settings = Gtk.Image.new_from_file(
                     os.path.join(base_dir, "images/48x48/akm-community.png")
                 )
 
-                image_settings.set_content_fit(content_fit=Gtk.ContentFit.SCALE_DOWN)
+                image_settings.set_icon_size(Gtk.IconSize.LARGE)
                 image_settings.set_halign(Gtk.Align.START)
 
                 grid_banner_img.attach(image_settings, 0, 1, 1, 1)
@@ -600,9 +592,9 @@ class KernelStack:
                     1,
                 )
 
-                vbox_icon_settings.append(grid_banner_img)
+                vbox_header.append(grid_banner_img)
 
-                vbox_kernels.append(vbox_icon_settings)
+                vbox_kernels.append(vbox_header)
                 vbox_kernels.append(label_desc)
                 vbox_kernels.append(hbox_warning)
                 vbox_kernels.append(label_count)

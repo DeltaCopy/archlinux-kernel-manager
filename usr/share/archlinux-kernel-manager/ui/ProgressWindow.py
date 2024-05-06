@@ -26,6 +26,7 @@ class ProgressWindow(Gtk.Window):
         self.set_title(title=title)
         self.set_modal(modal=True)
         self.set_resizable(True)
+        self.set_size_request(700, 400)
         self.connect("close-request", self.on_close)
 
         self.textview = textview
@@ -46,11 +47,8 @@ class ProgressWindow(Gtk.Window):
         self.bootloader = self.manager_gui.bootloader
         self.bootloader_grub_cfg = self.manager_gui.bootloader_grub_cfg
 
-        self.set_resizable(True)
-        self.set_size_request(600, 300)
-
-        vbox_progress = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
-        vbox_progress.set_name("box")
+        vbox_progress = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
+        vbox_progress.set_name("main")
 
         self.set_child(child=vbox_progress)
 
@@ -69,75 +67,69 @@ class ProgressWindow(Gtk.Window):
 
         lbl_heading = Gtk.Label(xalign=0.5, yalign=0.5)
         lbl_heading.set_name("label_flowbox_message")
-        lbl_heading.set_markup(
-            "<b>Kernel %s:  %s | %s </b>"
-            % (self.action, self.kernel.name, self.kernel.version)
-        )
 
         lbl_padding = Gtk.Label(xalign=0.0, yalign=0.0)
         lbl_padding.set_text(" ")
 
         grid_banner_img = Gtk.Grid()
 
+        image_settings = None
+
         if action == "install":
-            image_settings = Gtk.Picture.new_for_filename(
+            image_settings = Gtk.Image.new_from_file(
                 os.path.join(base_dir, "images/48x48/akm-install.png")
             )
+            lbl_heading.set_markup(
+                "Installing <b> %s version: %s </b>" % (self.kernel.name, self.kernel.version)
+            )
         if action == "uninstall":
-            image_settings = Gtk.Picture.new_for_filename(
+            image_settings = Gtk.Image.new_from_file(
                 os.path.join(base_dir, "images/48x48/akm-remove.png")
+            )
+            lbl_heading.set_markup(
+                "Removing <b> %s version: %s </b>" % (self.kernel.name, self.kernel.version)
             )
 
             # get kernel version from pacman
             self.installed_kernel_version = fn.get_kernel_version(self.kernel.name)
 
-        image_settings.set_content_fit(content_fit=Gtk.ContentFit.SCALE_DOWN)
         image_settings.set_halign(Gtk.Align.START)
+        image_settings.set_icon_size(Gtk.IconSize.LARGE)
 
-        grid_banner_img.attach(image_settings, 0, 1, 1, 1)
-        grid_banner_img.attach_next_to(
-            lbl_padding,
-            image_settings,
-            Gtk.PositionType.RIGHT,
-            1,
-            1,
-        )
+        hbox_header = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
+        hbox_header.set_name("vbox_header")
 
-        grid_banner_img.attach_next_to(
-            lbl_heading,
-            lbl_padding,
-            Gtk.PositionType.RIGHT,
-            1,
-            1,
-        )
+        hbox_header.append(image_settings)
+        hbox_header.append(lbl_heading)
 
-        vbox_icon_settings.append(grid_banner_img)
-
-        vbox_progress.append(vbox_icon_settings)
+        vbox_progress.append(hbox_header)
 
         self.spinner = Gtk.Spinner()
         self.spinner.set_spinning(True)
 
-        image_warning = Gtk.Picture.new_for_filename(
+        image_warning = Gtk.Image.new_from_file(
             os.path.join(base_dir, "images/48x48/akm-warning.png")
         )
 
-        image_warning.set_content_fit(content_fit=Gtk.ContentFit.SCALE_DOWN)
+        image_warning.set_icon_size(Gtk.IconSize.LARGE)
         image_warning.set_halign(Gtk.Align.START)
 
-        hbox_warning = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
+        hbox_progress_warning = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL, spacing=5
+        )
+        hbox_progress_warning.set_name("hbox_warning")
 
-        hbox_warning.append(image_warning)
+        hbox_progress_warning.append(image_warning)
 
         self.label_progress_window_desc = Gtk.Label(xalign=0, yalign=0)
 
         self.label_progress_window_desc.set_markup(
             f"Do not close this window while a kernel {self.action} activity is in progress\n"
-            f"Progress can be monitored in the log above\n"
+            f"Progress can be monitored in the log below\n"
             f"<b>A reboot is recommended when Linux packages have changed</b>"
         )
 
-        hbox_warning.append(self.label_progress_window_desc)
+        hbox_progress_warning.append(self.label_progress_window_desc)
 
         self.label_status = Gtk.Label(xalign=0, yalign=0)
 
@@ -150,18 +142,18 @@ class ProgressWindow(Gtk.Window):
             self.on_button_close_response,
         )
 
-        label_spinner_progress = Gtk.Label(xalign=0, yalign=0)
+        self.label_spinner_progress = Gtk.Label(xalign=0, yalign=0)
         if self.action == "install":
-            label_spinner_progress.set_markup(
+            self.label_spinner_progress.set_markup(
                 "<b>Please wait kernel %s is in progress</b>" % "installation"
             )
         elif self.action == "uninstall":
-            label_spinner_progress.set_markup(
+            self.label_spinner_progress.set_markup(
                 "<b>Please wait kernel %s is in progress</b>" % "removal"
             )
 
         self.hbox_spinner = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
-        self.hbox_spinner.append(label_spinner_progress)
+        self.hbox_spinner.append(self.label_spinner_progress)
         self.hbox_spinner.append(self.spinner)
 
         vbox_padding = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=20)
@@ -186,6 +178,7 @@ class ProgressWindow(Gtk.Window):
         hbox_notify_revealer = Gtk.Box(
             orientation=Gtk.Orientation.HORIZONTAL, spacing=20
         )
+
         hbox_notify_revealer.set_name("hbox_notify_revealer")
         hbox_notify_revealer.set_halign(Gtk.Align.CENTER)
 
@@ -211,31 +204,31 @@ class ProgressWindow(Gtk.Window):
 
         self.scrolled_window.set_size_request(300, 300)
 
+        vbox_progress.append(hbox_progress_warning)
         vbox_progress.append(self.notify_revealer)
         vbox_progress.append(self.scrolled_window)
         vbox_progress.append(self.hbox_spinner)
         vbox_progress.append(self.label_status)
-        vbox_progress.append(hbox_warning)
         vbox_progress.append(vbox_padding)
         vbox_progress.append(hbox_button_close)
 
         self.present()
 
-        linux_headers = None
+        self.linux_headers = None
 
-        if action == "install" and self.source == "official":
+        if action == "install" or action == "uninstall" and self.source == "official":
             if kernel.name == "linux":
-                linux_headers = "linux-headers"
+                self.linux_headers = "linux-headers"
             if kernel.name == "linux-rt":
-                linux_headers = "linux-rt-headers"
+                self.linux_headers = "linux-rt-headers"
             if kernel.name == "linux-rt-lts":
-                linux_headers = "linux-rt-lts-headers"
+                self.linux_headers = "linux-rt-lts-headers"
             if kernel.name == "linux-hardened":
-                linux_headers = "linux-hardened-headers"
+                self.linux_headers = "linux-hardened-headers"
             if kernel.name == "linux-zen":
-                linux_headers = "linux-zen-headers"
+                self.linux_headers = "linux-zen-headers"
             if kernel.name == "linux-lts":
-                linux_headers = "linux-lts-headers"
+                self.linux_headers = "linux-lts-headers"
 
             self.official_kernels = [
                 "%s/packages/l/%s/%s-x86_64%s"
@@ -248,11 +241,26 @@ class ProgressWindow(Gtk.Window):
                 "%s/packages/l/%s/%s-x86_64%s"
                 % (
                     fn.archlinux_mirror_archive_url,
-                    linux_headers,
+                    self.linux_headers,
                     kernel.headers,
                     kernel.file_format,
                 ),
             ]
+
+        # in the event an install goes wrong, fallback and reinstall previous kernel
+        self.restore_kernel = None
+
+        for inst_kernel in fn.get_installed_kernels():
+            if inst_kernel.name == self.kernel.name:
+
+                self.restore_kernel = inst_kernel
+                break
+
+        if self.restore_kernel:
+            fn.logger.info("Restore kernel = %s" % self.restore_kernel.name)
+            fn.logger.info("Restore kernel version = %s" % self.restore_kernel.version)
+        else:
+            fn.logger.info("No previous %s kernel installed" % self.kernel.name)
 
         if fn.check_pacman_lockfile() is False:
             th_monitor_messages_queue = fn.threading.Thread(
@@ -285,7 +293,7 @@ class ProgressWindow(Gtk.Window):
                 event = (
                     "%s [INFO]: Installing kernel from repository %s, kernel = %s-%s\n"
                     % (
-                        fn.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
+                        fn.datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
                         self.kernel.repository,
                         self.kernel.name,
                         self.kernel.version,
@@ -309,7 +317,7 @@ class ProgressWindow(Gtk.Window):
                 self.reveal_notify()
 
                 event = "%s [INFO]: Installing kernel = %s | version = %s\n" % (
-                    fn.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
+                    fn.datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
                     self.kernel.name,
                     self.kernel.version,
                 )
@@ -331,7 +339,7 @@ class ProgressWindow(Gtk.Window):
                     self.reveal_notify()
 
                     event = "%s [INFO]: Uninstalling kernel %s %s\n" % (
-                        fn.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
+                        fn.datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
                         self.kernel.name,
                         self.kernel.version,
                     )
@@ -374,7 +382,7 @@ class ProgressWindow(Gtk.Window):
         if fn.check_pacman_process(self):
             mw = MessageWindow(
                 title="Pacman process running",
-                message="Please wait for the pacman process to finish",
+                message="Pacman is busy processing a transaction .. please wait",
                 image_path="images/48x48/akm-progress.png",
                 transient_for=self,
                 detailed_message=False,
@@ -388,7 +396,7 @@ class ProgressWindow(Gtk.Window):
         if fn.check_pacman_process(self):
             mw = MessageWindow(
                 title="Pacman process running",
-                message="Please wait for the pacman process to finish",
+                message="Pacman is busy processing a transaction .. please wait",
                 image_path="images/48x48/akm-progress.png",
                 transient_for=self,
                 detailed_message=False,
@@ -407,6 +415,7 @@ class ProgressWindow(Gtk.Window):
             try:
                 if items is not None:
                     returncode, action, kernel = items
+
                     if returncode == 0:
                         self.label_notify_revealer.set_text(
                             "Kernel %s completed" % action
@@ -416,7 +425,7 @@ class ProgressWindow(Gtk.Window):
                         fn.logger.info("Kernel %s completed" % action)
 
                         event = "%s [INFO]: <b>Kernel %s completed</b>\n" % (
-                            fn.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
+                            fn.datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
                             action,
                         )
                         self.messages_queue.put(event)
@@ -430,44 +439,78 @@ class ProgressWindow(Gtk.Window):
                         fn.logger.error("Kernel %s failed" % action)
 
                         event = "%s <b>[ERROR]: Kernel %s failed</b>\n" % (
-                            fn.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
+                            fn.datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
                             action,
                         )
                         self.messages_queue.put(event)
 
-                        self.label_title.set_markup(
-                            "<b>Kernel %s %s failed</b>" % (kernel, action)
+                        self.label_status.set_markup(
+                            "<span foreground='orange'><b>Kernel %s failed - see logs above</b></span>"
+                            % action
                         )
-
-                        self.spinner.set_spinning(False)
-                        self.hbox_spinner.hide()
-
-                        self.label_status.set_markup("<span foreground='orange'> <b>Kernel %s failed</b></span>" % action)
 
                         # undo action here if action == install
 
                         event = (
-                            "%s <b>[INFO]: Attempting to undo any system changes made</b>\n"
-                            % (fn.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),)
+                            "%s<b> [INFO]: Attempting to undo previous Linux package changes made</b>\n"
+                            % (fn.datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),)
                         )
 
                         self.messages_queue.put(event)
 
-                        if action == "install":
-                            fn.logger.info("Installation failed, attempting uninstall of previous system changes")
+                        if action == "install" and self.restore_kernel is not None:
+                            fn.logger.info(
+                                "Installation failed, attempting removal of previous Linux package changes"
+                            )
                             self.set_title("Kernel installation failed")
 
+                            self.label_spinner_progress.set_markup(
+                                "<b>Please wait restoring kernel %s</b>"
+                                % self.restore_kernel.version
+                            )
+
                             fn.uninstall(self)
-                        
-                        self.spinner.set_spinning(False)
-                        self.hbox_spinner.hide()
 
-                        self.label_progress_window_desc.set_markup(
-                            f"<b>This window can be now closed</b>\n"
-                            f"<b>A reboot is recommended when Linux packages have changed</b>"
-                        )
+                            fn.logger.info(
+                                "Restoring previously installed kernel %s"
+                                % self.restore_kernel.version
+                            )
 
-                        break
+                            self.official_kernels = [
+                                "%s/packages/l/%s/%s-%s-x86_64%s"
+                                % (
+                                    fn.archlinux_mirror_archive_url,
+                                    self.restore_kernel.name,
+                                    self.restore_kernel.name,
+                                    self.restore_kernel.version,
+                                    ".pkg.tar.zst",
+                                ),
+                                "%s/packages/l/%s/%s-%s-x86_64%s"
+                                % (
+                                    fn.archlinux_mirror_archive_url,
+                                    self.linux_headers,
+                                    self.linux_headers,
+                                    self.restore_kernel.version,
+                                    ".pkg.tar.zst",
+                                ),
+                            ]
+                            self.errors_found = False
+                            fn.install_archive_kernel(self)
+                            self.set_title("Kernel installation failed")
+                            self.label_status.set_markup(
+                                f"<span foreground='orange'><b>Kernel %s failed - see logs above</b></span>\n"
+                                % action
+                            )
+
+                    # self.spinner.set_spinning(False)
+                    # self.hbox_spinner.hide()
+                    #
+                    # self.label_progress_window_desc.set_markup(
+                    #     f"<b>This window can be now closed</b>\n"
+                    #     f"<b>A reboot is recommended when Linux packages have changed</b>"
+                    # )
+
+                    # break
                 else:
                     if (
                         returncode == 0
@@ -489,7 +532,8 @@ class ProgressWindow(Gtk.Window):
                         )
 
                         self.label_status.set_markup(
-                            "<span foreground='orange'><b>Kernel %s completed</b></span>" % action
+                            "<span foreground='orange'><b>Kernel %s completed</b></span>"
+                            % action
                         )
 
                         self.spinner.set_spinning(False)
@@ -500,9 +544,14 @@ class ProgressWindow(Gtk.Window):
                             f"<b>A reboot is recommended when Linux packages have changed</b>"
                         )
 
-                    # else:
-                    #     self.spinner.set_spinning(False)
-                    #     self.hbox_spinner.hide()
+                    # # else:
+                    # self.spinner.set_spinning(False)
+                    # self.hbox_spinner.hide()
+                    #
+                    # self.label_progress_window_desc.set_markup(
+                    #     f"<b>This window can be now closed</b>\n"
+                    #     f"<b>A reboot is recommended when Linux packages have changed</b>"
+                    # )
 
                     break
             except Exception as e:
@@ -533,7 +582,7 @@ class ProgressWindow(Gtk.Window):
 
     def uninstall_kernel(self):
         event = "%s [INFO]: Uninstalling kernel %s\n" % (
-            fn.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
+            fn.datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),
             self.kernel.version,
         )
 
