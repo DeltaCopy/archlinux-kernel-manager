@@ -37,7 +37,7 @@ As long as the necessary Pacman repositories are configured these are supported.
 
 # Installed kernels
 
-![Installed kernels](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/e701082e-476c-4095-a60f-ff460dd59637)
+![Installed kernels](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/a29588eb-756d-41d8-872d-a8957a7dd3ea)
 
 # Installation/removal progress window
 
