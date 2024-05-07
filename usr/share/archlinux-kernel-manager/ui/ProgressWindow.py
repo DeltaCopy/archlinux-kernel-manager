@@ -80,14 +80,14 @@ class ProgressWindow(Gtk.Window):
                 os.path.join(base_dir, "images/48x48/akm-install.png")
             )
             lbl_heading.set_markup(
-                "Installing <b> %s version: %s </b>" % (self.kernel.name, self.kernel.version)
+                "Installing <b> %s version %s </b>" % (self.kernel.name, self.kernel.version)
             )
         if action == "uninstall":
             image_settings = Gtk.Image.new_from_file(
                 os.path.join(base_dir, "images/48x48/akm-remove.png")
             )
             lbl_heading.set_markup(
-                "Removing <b> %s version: %s </b>" % (self.kernel.name, self.kernel.version)
+                "Removing <b> %s version %s </b>" % (self.kernel.name, self.kernel.version)
             )
 
             # get kernel version from pacman
@@ -216,7 +216,7 @@ class ProgressWindow(Gtk.Window):
 
         self.linux_headers = None
 
-        if action == "install" or action == "uninstall" and self.source == "official":
+        if self.source == "official" and action == "install" or action == "uninstall" and self.source == "official":
             if kernel.name == "linux":
                 self.linux_headers = "linux-headers"
             if kernel.name == "linux-rt":
@@ -229,6 +229,7 @@ class ProgressWindow(Gtk.Window):
                 self.linux_headers = "linux-zen-headers"
             if kernel.name == "linux-lts":
                 self.linux_headers = "linux-lts-headers"
+
 
             self.official_kernels = [
                 "%s/packages/l/%s/%s-x86_64%s"
@@ -248,19 +249,23 @@ class ProgressWindow(Gtk.Window):
             ]
 
         # in the event an install goes wrong, fallback and reinstall previous kernel
-        self.restore_kernel = None
 
-        for inst_kernel in fn.get_installed_kernels():
-            if inst_kernel.name == self.kernel.name:
+        if self.source == "official":
+            self.restore_kernel = None
 
-                self.restore_kernel = inst_kernel
-                break
+            for inst_kernel in fn.get_installed_kernels():
+                if inst_kernel.name == self.kernel.name:
 
-        if self.restore_kernel:
-            fn.logger.info("Restore kernel = %s" % self.restore_kernel.name)
-            fn.logger.info("Restore kernel version = %s" % self.restore_kernel.version)
+                    self.restore_kernel = inst_kernel
+                    break
+
+            if self.restore_kernel:
+                fn.logger.info("Restore kernel = %s" % self.restore_kernel.name)
+                fn.logger.info("Restore kernel version = %s" % self.restore_kernel.version)
+            else:
+                fn.logger.info("No previous %s kernel installed" % self.kernel.name)
         else:
-            fn.logger.info("No previous %s kernel installed" % self.kernel.name)
+            fn.logger.info("Community kernel, no kernel restore available")
 
         if fn.check_pacman_lockfile() is False:
             th_monitor_messages_queue = fn.threading.Thread(
