@@ -6,7 +6,7 @@ Installation and removal of Kernels is carried out using Pacman.
 
 Kernel packages are sourced from the Arch Linux Archive (ALA).
 
-Both official and Un-official community based Kernels are supported.
+Both official and un-official community based Kernels are supported.
 
 # Official Kernels
 
@@ -32,6 +32,8 @@ As long as the necessary Pacman repositories are configured these are supported.
 - linux-clear
 - linux-amd
 - linux-nitrous
+
+Most of these are sourced from the ![Chaotic AUR](https://aur.chaotic.cx)
 
 ![Community kernels](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/903ead21-8429-4686-a013-f0b31482ba79)
 
