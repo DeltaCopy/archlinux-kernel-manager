@@ -207,7 +207,8 @@ class KernelStack:
                 )
                 self.flowbox_stacks.append(self.flowbox_official_kernel)
 
-                vbox_flowbox.append(self.flowbox_official_kernel)
+                if vbox_flowbox is not None:
+                    vbox_flowbox.append(self.flowbox_official_kernel)
 
                 # while self.manager_gui.default_context.pending():
                 #     self.manager_gui.default_context.iteration(True)

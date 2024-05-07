@@ -41,6 +41,8 @@ class ProgressWindow(Gtk.Window):
         self.action = action
         self.switch = switch
 
+        self.restore = False
+
         self.source = source
         self.manager_gui = manager_gui
 
@@ -464,6 +466,7 @@ class ProgressWindow(Gtk.Window):
                         self.messages_queue.put(event)
 
                         if action == "install" and self.restore_kernel is not None:
+                            self.restore = True
                             fn.logger.info(
                                 "Installation failed, attempting removal of previous Linux package changes"
                             )
@@ -532,22 +535,42 @@ class ProgressWindow(Gtk.Window):
                         if len(self.manager_gui.community_kernels) > 0:
                             self.update_community_list()
 
-                        self.label_title.set_markup(
-                            "<b>Kernel %s completed</b>" % action
-                        )
 
-                        self.label_status.set_markup(
-                            "<span foreground='orange'><b>Kernel %s completed</b></span>"
-                            % action
-                        )
+                        if self.restore == False:
+                            self.label_title.set_markup(
+                                "<b>Kernel %s completed</b>" % action
+                            )
 
-                        self.spinner.set_spinning(False)
-                        self.hbox_spinner.hide()
+                            self.label_status.set_markup(
+                                "<span foreground='orange'><b>Kernel %s completed</b></span>"
+                                % action
+                            )
 
-                        self.label_progress_window_desc.set_markup(
-                            f"<b>This window can be now closed</b>\n"
-                            f"<b>A reboot is recommended when Linux packages have changed</b>"
-                        )
+                            self.spinner.set_spinning(False)
+                            self.hbox_spinner.hide()
+
+                            self.label_progress_window_desc.set_markup(
+                                f"<b>This window can be now closed</b>\n"
+                                f"<b>A reboot is recommended when Linux packages have changed</b>"
+                            )
+                        else:
+                            self.label_title.set_markup(
+                                "<b>Kernel %s failed</b>" % action
+                            )
+
+                            self.label_status.set_markup(
+                                "<span foreground='orange'><b>Kernel %s failed</b></span>"
+                                % action
+                            )
+
+                            self.spinner.set_spinning(False)
+                            self.hbox_spinner.hide()
+
+                            self.label_progress_window_desc.set_markup(
+                                f"<b>This window can be now closed</b>\n"
+                                f"<b>Previous kernel restored due to failure</b>\n"
+                                f"<b>A reboot is recommended when Linux packages have changed</b>"
+                            )
 
                     # # else:
                     # self.spinner.set_spinning(False)

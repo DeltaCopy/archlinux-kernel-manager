@@ -1541,16 +1541,16 @@ def update_bootloader(self):
                         )
                         self.messages_queue.put(event)
 
-                        GLib.idle_add(
-                            show_mw,
-                            self,
-                            "System changes",
-                            f"Kernel {self.action} completed\n"
-                            f"This window can now be closed\n",
-                            image,
-                            priority=GLib.PRIORITY_DEFAULT,
-                        )
-
+                        if self.restore == False:
+                            GLib.idle_add(
+                                show_mw,
+                                self,
+                                "System changes",
+                                f"Kernel {self.action} completed\n"
+                                f"This window can now be closed\n",
+                                image,
+                                priority=GLib.PRIORITY_DEFAULT,
+                            )
                     else:
                         if (
                             "Skipping"
@@ -1565,15 +1565,16 @@ def update_bootloader(self):
                             )
                             self.messages_queue.put(event)
 
-                            GLib.idle_add(
-                                show_mw,
-                                self,
-                                "System changes",
-                                f"Kernel {self.action} completed\n"
-                                f"This window can now be closed\n",
-                                image,
-                                priority=GLib.PRIORITY_DEFAULT,
-                            )
+                            if self.restore == False:
+                                GLib.idle_add(
+                                    show_mw,
+                                    self,
+                                    "System changes",
+                                    f"Kernel {self.action} completed\n"
+                                    f"This window can now be closed\n",
+                                    image,
+                                    priority=GLib.PRIORITY_DEFAULT,
+                                )
 
                         else:
                             self.label_notify_revealer.set_text(
