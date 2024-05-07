@@ -533,7 +533,7 @@ class ProgressWindow(Gtk.Window):
                             self.update_community_list()
 
                         self.label_title.set_markup(
-                            "<b>Kernel %s -headers %s completed</b>" % (kernel, action)
+                            "<b>Kernel %s completed</b>" % action
                         )
 
                         self.label_status.set_markup(
