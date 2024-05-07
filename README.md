@@ -17,7 +17,7 @@ Both official and Un-official community based Kernels are supported.
 - linux-rt
 - linux-rt-lts
 
-![Official kernels](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/a0c191ad-8420-4798-9555-bf86c65f80f7)
+![Official kernels](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/34a217d0-1484-4274-94e4-7a76ab2e0d97)
 
 # Community based Kernels
 

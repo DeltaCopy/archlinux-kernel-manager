@@ -348,8 +348,22 @@ class KernelStack:
                 self.manager_gui.vbox_kernels.append(scrolled_window_official)
                 self.manager_gui.vbox_kernels.append(vbox_active_kernel)
 
+
+                if kernel == "linux":
+                    kernel = "Linux"
+                elif kernel == "linux-lts":
+                    kernel = "Linux-LTS"
+                elif kernel == "linux-zen":
+                    kernel = "Linux-ZEN"
+                elif kernel == "linux-hardened":
+                    kernel = "Linux-Hardened"
+                elif kernel == "linux-rt":
+                    kernel = "Linux-RT"
+                elif kernel == "linux-rt-lts":
+                    kernel = "Linux-RT-LTS"
+
                 self.manager_gui.stack.add_titled(
-                    self.manager_gui.vbox_kernels, kernel, kernel.title()
+                    self.manager_gui.vbox_kernels, kernel, kernel
                 )
 
     def flowbox_filter_official(self, search_entry):
