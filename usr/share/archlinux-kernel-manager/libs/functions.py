@@ -114,16 +114,21 @@ def get_latest_kernel_updates(self):
         cache_timestamp = None
 
         if os.path.exists(cache_file):
-            with open(cache_file, "rb") as f:
-                data = tomlkit.load(f)
+            with open(cache_file, "r", encoding="utf-8") as f:
+                # data = tomlkit.load(f)
+
+                data = f.readlines()[2]
 
                 if len(data) == 0:
                     logger.error(
                         "%s is empty, delete it and open the app again" % cache_file
                     )
 
-                if len(data) > 0:
-                    cache_timestamp = data["timestamp"]
+                if len(data) > 0 and "timestamp" in data.strip():
+                    # cache_timestamp = data["timestamp"]
+                    cache_timestamp = (
+                        data.split("timestamp = ")[1].replace('"', "").strip()
+                    )
 
             if not os.path.exists(cache_update):
                 last_update_check = datetime.datetime.now().strftime("%Y-%m-%d")
@@ -223,9 +228,20 @@ def get_cache_last_modified():
     try:
         if os.path.exists(cache_file):
             # Sat May  4 15:00:27 2024
-            return datetime.datetime.strptime(
-                time.ctime(pathlib.Path(cache_file).stat().st_mtime),
-                "%a %b  %w %H:%M:%S %Y",
+            # return datetime.datetime.strptime(
+            #     time.ctime(pathlib.Path(cache_file).stat().st_mtime),
+            #     "%a %b %w %H:%M:%S %Y",
+            # )
+
+            timestamp = datetime.datetime.fromtimestamp(
+                pathlib.Path(cache_file).stat().st_mtime, tz=datetime.timezone.utc
+            )
+
+            return "%s %s:%s:%s" % (
+                timestamp.date(),
+                timestamp.time().hour,
+                timestamp.minute,
+                timestamp.second,
             )
 
         else:
@@ -273,7 +289,7 @@ def permissions(dst):
         logger.error("Exception in permissions(): %s" % e)
 
 
-def setup_config():
+def setup_config(self):
     try:
         if not os.path.exists(config_dir):
             makedirs(config_dir)
@@ -282,7 +298,7 @@ def setup_config():
             shutil.copy(config_file_default, config_dir)
             permissions(config_dir)
 
-        return read_config()
+        return read_config(self)
 
     except Exception as e:
         logger.error("Exception in setup_config(): %s" % e)
@@ -302,7 +318,7 @@ def update_config(config_data, bootloader):
         return False
 
 
-def read_config():
+def read_config(self):
     try:
         logger.debug("Config file = %s" % config_file)
         logger.info("Reading in config file")
@@ -508,7 +524,6 @@ def install_archive_kernel(self):
                     self.messages_queue.put(event)
 
         # signal to say end reached
-        print("end")
         self.kernel_state_queue.put(None)
 
     except Exception as e:
@@ -518,7 +533,7 @@ def install_archive_kernel(self):
             show_mw,
             self,
             "System changes",
-            f"Kernel {self.action} failed\n"
+            f"<b>Kernel {self.action} failed</b>\n"
             f"There have been errors, please review the logs\n",
             "images/48x48/akm-warning.png",
             priority=GLib.PRIORITY_DEFAULT,
@@ -582,23 +597,23 @@ def read_cache(self):
                                 # any kernels older than 2 years
                                 # (currently linux v4.x or earlier) are deemed eol so ignore them
 
-                                if (
-                                    datetime.datetime.now().year
-                                    - datetime.datetime.strptime(
-                                        k["last_modified"], "%d-%b-%Y %H:%M"
-                                    ).year
-                                    <= 2
-                                ):
-                                    cached_kernels_list.append(
-                                        Kernel(
-                                            k["name"],
-                                            k["headers"],
-                                            k["version"],
-                                            k["size"],
-                                            k["last_modified"],
-                                            k["file_format"],
-                                        )
+                                # if (
+                                #     datetime.datetime.now().year
+                                #     - datetime.datetime.strptime(
+                                #         k["last_modified"], "%d-%b-%Y %H:%M"
+                                #     ).year
+                                #     <= 2
+                                # ):
+                                cached_kernels_list.append(
+                                    Kernel(
+                                        k["name"],
+                                        k["headers"],
+                                        k["version"],
+                                        k["size"],
+                                        k["last_modified"],
+                                        k["file_format"],
                                     )
+                                )
 
                             name = None
                             headers = None
@@ -685,6 +700,11 @@ def parse_archive_html(response, linux_kernel):
                             version is not None
                             and url is not None
                             and headers is not None
+                            and datetime.datetime.now().year
+                            - datetime.datetime.strptime(
+                                last_modified, "%d-%b-%Y %H:%M"
+                            ).year
+                            <= 2  # ignore kernels <=2 years old
                         ):
                             ke = Kernel(
                                 linux_kernel,
@@ -767,13 +787,15 @@ def get_official_kernels(self):
             for kernel in response_content:
                 parse_archive_html(response_content[kernel], kernel)
 
-            if len(fetched_kernels_dict) > 0 and self.refresh_cache is True:
+            if len(fetched_kernels_dict) > 0:  # and self.refresh_cache is True:
                 write_cache()
                 read_cache(self)
 
                 self.queue_kernels.put(cached_kernels_list)
-            elif self.refresh_cache is False:
-                logger.info("Cache already processed")
+            # elif self.refresh_cache is False:
+            #     logger.info("Cache already processed")
+            #     read_cache(self)
+            #     self.queue_kernels.put(cached_kernels_list)
 
             else:
                 logger.error("Failed to retrieve Linux Kernel list")
@@ -1045,7 +1067,7 @@ def get_community_kernels(self):
                     "%s/%s" % (pacman_repo, name),
                 ]
                 logger.info("Fetching package information for %s" % name)
-                logger.debug("Running %s" % query_cmd_str)
+                # logger.debug("Running %s" % query_cmd_str)
                 process_kernel_query = subprocess.Popen(
                     query_cmd_str,
                     shell=False,
@@ -1257,7 +1279,7 @@ def get_installed_kernels():
         out, err = process_kernel_query.communicate(timeout=process_timeout)
         if process_kernel_query.returncode == 0:
             for line in out.decode("utf-8").splitlines():
-                if line.strip().startswith("linux"):
+                if line.lower().strip().startswith("linux"):
                     package_name = line.split(" ")[0]
                     package_version = line.split(" ")[1]
 
@@ -1541,12 +1563,12 @@ def update_bootloader(self):
                         )
                         self.messages_queue.put(event)
 
-                        if self.restore == False:
+                        if self.restore is False:
                             GLib.idle_add(
                                 show_mw,
                                 self,
                                 "System changes",
-                                f"Kernel {self.action} completed\n"
+                                f"<b>Kernel {self.action} completed</b>\n"
                                 f"This window can now be closed\n",
                                 image,
                                 priority=GLib.PRIORITY_DEFAULT,
@@ -1565,12 +1587,12 @@ def update_bootloader(self):
                             )
                             self.messages_queue.put(event)
 
-                            if self.restore == False:
+                            if self.restore is False:
                                 GLib.idle_add(
                                     show_mw,
                                     self,
                                     "System changes",
-                                    f"Kernel {self.action} completed\n"
+                                    f"<b>Kernel {self.action} completed</b>\n"
                                     f"This window can now be closed\n",
                                     image,
                                     priority=GLib.PRIORITY_DEFAULT,
@@ -1595,7 +1617,7 @@ def update_bootloader(self):
                                 show_mw,
                                 self,
                                 "System changes",
-                                f"Kernel {self.action} failed .. attempting kernel restore\n"
+                                f"<b>Kernel {self.action} failed .. attempting kernel restore</b>\n"
                                 f"There have been errors, please review the logs\n",
                                 image,
                                 priority=GLib.PRIORITY_DEFAULT,
@@ -1608,7 +1630,7 @@ def update_bootloader(self):
                     show_mw,
                     self,
                     "System changes",
-                    f"Kernel {self.action} failed\n"
+                    f"<b>Kernel {self.action} failed</b>\n"
                     f"There have been errors, please review the logs\n",
                     image,
                     priority=GLib.PRIORITY_DEFAULT,
@@ -1617,16 +1639,6 @@ def update_bootloader(self):
             logger.error("Bootloader update cannot continue, failed to set command.")
     except Exception as e:
         logger.error("Exception in update_bootloader(): %s" % e)
-
-        # GLib.idle_add(
-        #     show_mw,
-        #     self,
-        #     "System changes",
-        #     f"Kernel {self.action} failed\n"
-        #     f"There have been errors, please review the logs\n",
-        #     image,
-        #     priority=GLib.PRIORITY_DEFAULT,
-        # )
 
 
 # ======================================================================

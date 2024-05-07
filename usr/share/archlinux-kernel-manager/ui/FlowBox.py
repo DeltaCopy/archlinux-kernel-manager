@@ -568,7 +568,7 @@ class FlowBoxMessageWindow(Gtk.Window):
         if fn.check_pacman_lockfile() is False:
             if self.action == "uninstall":
                 progress_window = ProgressWindow(
-                    title="Removing %s %s" % (self.kernel.name, self.kernel.version),
+                    title="Removing kernel",
                     action="uninstall",
                     textview=self.textview,
                     textbuffer=self.textbuffer,
@@ -581,7 +581,7 @@ class FlowBoxMessageWindow(Gtk.Window):
 
             if self.action == "install":
                 progress_window = ProgressWindow(
-                    title="Installing %s %s" % (self.kernel.name, self.kernel.version),
+                    title="Installing kernel",
                     action="install",
                     textview=self.textview,
                     textbuffer=self.textbuffer,

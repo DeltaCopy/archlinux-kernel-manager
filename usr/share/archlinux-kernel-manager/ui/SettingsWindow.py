@@ -504,7 +504,7 @@ class SettingsWindow(Gtk.Window):
                     self.dropdown_bootloader.set_selected(0)
                     return
 
-            config_data = fn.read_config()
+            config_data = fn.read_config(self)
 
             if config_data is not None:
                 # grub

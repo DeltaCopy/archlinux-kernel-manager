@@ -199,15 +199,14 @@ class KernelStack:
                             for widget in vbox_flowbox:
                                 widget.remove_all()
 
-                self.flowbox_official_kernel = FlowBox(
-                    kernel,
-                    self.manager_gui.active_kernel,
-                    self.manager_gui,
-                    "official",
-                )
-                self.flowbox_stacks.append(self.flowbox_official_kernel)
+                    self.flowbox_official_kernel = FlowBox(
+                        kernel,
+                        self.manager_gui.active_kernel,
+                        self.manager_gui,
+                        "official",
+                    )
+                    self.flowbox_stacks.append(self.flowbox_official_kernel)
 
-                if vbox_flowbox is not None:
                     vbox_flowbox.append(self.flowbox_official_kernel)
 
                 # while self.manager_gui.default_context.pending():
@@ -349,22 +348,23 @@ class KernelStack:
                 self.manager_gui.vbox_kernels.append(scrolled_window_official)
                 self.manager_gui.vbox_kernels.append(vbox_active_kernel)
 
+                kernel_sidebar_title = None
 
                 if kernel == "linux":
-                    kernel = "Linux"
+                    kernel_sidebar_title = "Linux"
                 elif kernel == "linux-lts":
-                    kernel = "Linux-LTS"
+                    kernel_sidebar_title = "Linux-LTS"
                 elif kernel == "linux-zen":
-                    kernel = "Linux-ZEN"
+                    kernel_sidebar_title = "Linux-ZEN"
                 elif kernel == "linux-hardened":
-                    kernel = "Linux-Hardened"
+                    kernel_sidebar_title = "Linux-Hardened"
                 elif kernel == "linux-rt":
-                    kernel = "Linux-RT"
+                    kernel_sidebar_title = "Linux-RT"
                 elif kernel == "linux-rt-lts":
-                    kernel = "Linux-RT-LTS"
+                    kernel_sidebar_title = "Linux-RT-LTS"
 
                 self.manager_gui.stack.add_titled(
-                    self.manager_gui.vbox_kernels, kernel, kernel
+                    self.manager_gui.vbox_kernels, kernel, kernel_sidebar_title
                 )
 
     def flowbox_filter_official(self, search_entry):

@@ -82,14 +82,16 @@ class ProgressWindow(Gtk.Window):
                 os.path.join(base_dir, "images/48x48/akm-install.png")
             )
             lbl_heading.set_markup(
-                "Installing <b> %s version %s </b>" % (self.kernel.name, self.kernel.version)
+                "Installing <b>%s version %s </b>"
+                % (self.kernel.name, self.kernel.version)
             )
         if action == "uninstall":
             image_settings = Gtk.Image.new_from_file(
                 os.path.join(base_dir, "images/48x48/akm-remove.png")
             )
             lbl_heading.set_markup(
-                "Removing <b> %s version %s </b>" % (self.kernel.name, self.kernel.version)
+                "Removing <b>%s version %s </b>"
+                % (self.kernel.name, self.kernel.version)
             )
 
             # get kernel version from pacman
@@ -218,7 +220,12 @@ class ProgressWindow(Gtk.Window):
 
         self.linux_headers = None
 
-        if self.source == "official" and action == "install" or action == "uninstall" and self.source == "official":
+        if (
+            self.source == "official"
+            and action == "install"
+            or action == "uninstall"
+            and self.source == "official"
+        ):
             if kernel.name == "linux":
                 self.linux_headers = "linux-headers"
             if kernel.name == "linux-rt":
@@ -231,7 +238,6 @@ class ProgressWindow(Gtk.Window):
                 self.linux_headers = "linux-zen-headers"
             if kernel.name == "linux-lts":
                 self.linux_headers = "linux-lts-headers"
-
 
             self.official_kernels = [
                 "%s/packages/l/%s/%s-x86_64%s"
@@ -263,7 +269,9 @@ class ProgressWindow(Gtk.Window):
 
             if self.restore_kernel:
                 fn.logger.info("Restore kernel = %s" % self.restore_kernel.name)
-                fn.logger.info("Restore kernel version = %s" % self.restore_kernel.version)
+                fn.logger.info(
+                    "Restore kernel version = %s" % self.restore_kernel.version
+                )
             else:
                 fn.logger.info("No previous %s kernel installed" % self.kernel.name)
         else:
@@ -459,8 +467,12 @@ class ProgressWindow(Gtk.Window):
                         # undo action here if action == install
 
                         event = (
-                            "%s<b> [INFO]: Attempting to undo previous Linux package changes made</b>\n"
-                            % (fn.datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"),)
+                            "%s<b> [INFO]: Attempting to undo previous Linux package changes</b>\n"
+                            % (
+                                fn.datetime.datetime.now().strftime(
+                                    "%Y-%m-%d-%H-%M-%S"
+                                ),
+                            )
                         )
 
                         self.messages_queue.put(event)
@@ -534,7 +546,6 @@ class ProgressWindow(Gtk.Window):
 
                         if len(self.manager_gui.community_kernels) > 0:
                             self.update_community_list()
-
 
                         if self.restore == False:
                             self.label_title.set_markup(

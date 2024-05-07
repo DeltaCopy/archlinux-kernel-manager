@@ -81,7 +81,7 @@ class ManagerGUI(Gtk.ApplicationWindow):
 
         # self.bootloader = fn.get_boot_loader()
 
-        config_data = fn.setup_config()
+        config_data = fn.setup_config(self)
 
         if "bootloader" in config_data.keys():
             if config_data["bootloader"]["name"] is not None:
