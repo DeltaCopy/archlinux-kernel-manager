@@ -19,7 +19,7 @@ Both official and un-official community based Kernels are supported.
 
 ![Official kernels](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/34a217d0-1484-4274-94e4-7a76ab2e0d97)
 
-# Community based Kernels
+# Community based kernels
 
 As long as the necessary Pacman repositories are configured these are supported.
 
