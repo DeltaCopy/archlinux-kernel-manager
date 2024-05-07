@@ -17,7 +17,7 @@ Both official and Un-official community based Kernels are supported.
 - linux-rt
 - linux-rt-lts
 
-![Official kernel](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/15f771ec-3d96-44c4-a8d4-8e10a4d5fa19)
+![Official kernels](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/a0c191ad-8420-4798-9555-bf86c65f80f7)
 
 # Community based Kernels
 
@@ -33,11 +33,11 @@ As long as the necessary Pacman repositories are configured these are supported.
 - linux-amd
 - linux-nitrous
 
-![Community kernels](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/f383c5a6-1643-42ca-bc02-b2063d0d3da0)
+![Community kernels](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/903ead21-8429-4686-a013-f0b31482ba79)
 
 # Installed kernels
 
-![Installed kernels](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/2f1854aa-832a-48f6-8e93-ca16233502e4)
+![Installed kernels](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/e701082e-476c-4095-a60f-ff460dd59637)
 
 # Installation/removal progress window
 
@@ -68,7 +68,7 @@ The bootloader settings can be overridden using the Advanced settings window.
 
 ## Latest kernel versions
 
-![Kernel versions](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/e190c838-839e-43e9-8d62-153650ce05cc))
+![Kernel versions](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/e190c838-839e-43e9-8d62-153650ce05cc)
 
 # Default configuration file
 
