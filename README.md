@@ -22,10 +22,10 @@ These kernels are considerably out of date and have shown to fail to install pro
 
 ## What happens if a kernel installation fails
 
-The application will indicate the failure and the log insode the progress window, should have the information required to understand why.
+The application will indicate the failure and the log inside the progress window, should have the information required to understand why.
 In the event of a failure, the application will try to reinstall the kernel using the version previously installed.
 
-![Official kernels](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/d3492eb9-1beb-4b95-b83d-eb1070eda93b)
+![Official kernels](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/3dd09c35-561a-4787-8386-253dde7518ce)
 
 # Community based kernels
 
@@ -49,7 +49,7 @@ See updating the configuration file for adding new kernels.
 
 # Installed kernels
 
-![Installed kernels](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/9c248f43-bdfa-4141-bbfe-f5987d560598)
+![Installed kernels](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/669e837a-4b58-4825-a091-986f01601327)
 
 # Progress window
 
