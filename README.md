@@ -17,7 +17,10 @@ Both official and un-official community based Kernels are supported.
 - linux-rt
 - linux-rt-lts
 
-![Official kernels](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/34a217d0-1484-4274-94e4-7a76ab2e0d97)
+Since the ALA has a lot of kernel packages any versions found older than 2 years or more are ignored.
+These kernels are considerably out of date and have shown to fail to install properly with issues related to missing modules.
+
+![Official kernels](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/6df33b59-cee4-4330-b0b5-882b9888d883)
 
 # Community based kernels
 
@@ -34,6 +37,7 @@ As long as the necessary Pacman repositories are configured these are supported.
 - linux-nitrous
 
 Most of these are sourced from the ![Chaotic AUR](https://aur.chaotic.cx)
+See ![the configuration file](#default-configuration-file) on how to add additional kernels.
 
 ![Community kernels](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/903ead21-8429-4686-a013-f0b31482ba79)
 
@@ -41,7 +45,7 @@ Most of these are sourced from the ![Chaotic AUR](https://aur.chaotic.cx)
 
 ![Installed kernels](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/e6280de3-f921-46f0-89da-4777fbc3bd84)
 
-# Installation/removal progress window
+# Progress window
 
 ![Progress window](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/f1a7144b-e9b0-4fe1-9602-7d03487a120e)
 
@@ -54,7 +58,7 @@ By default, the application will use `bootctl` to distinguish which bootloader (
 
 ## Grub
 
-`grub-mkconfig` is run to update the grub.cfg file
+`grub-mkconfig` is run to update the grub.cfg file.
 
 ## systemd-boot
 
@@ -65,10 +69,13 @@ By default, the application will use `bootctl` to distinguish which bootloader (
 ## Bootloader settings
 
 The bootloader settings can be overridden using the Advanced settings window.
+Or you can manually update the configuration file (see the custom bootloader example).
 
 ![Advanced settings](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/35c64579-250d-4254-96e1-0d61b9302137)
 
 ## Latest kernel versions
+
+Based on the latest information taken from the configured pacman mirrors.
 
 ![Kernel versions](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/e190c838-839e-43e9-8d62-153650ce05cc)
 
