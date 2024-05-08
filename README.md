@@ -20,7 +20,12 @@ Both official and un-official community based Kernels are supported.
 Since the ALA has a lot of kernel packages any versions found older than 2 years or more are ignored.
 These kernels are considerably out of date and have shown to fail to install properly with issues related to missing modules.
 
-![Official kernels](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/6df33b59-cee4-4330-b0b5-882b9888d883)
+## What happens if a kernel installation fails
+
+The application will indicate the failure and the log insode the progress window, should have the information required to understand why.
+In the event of a failure, the application will try to reinstall the kernel using the version previously installed.
+
+![Official kernels](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/d3492eb9-1beb-4b95-b83d-eb1070eda93b)
 
 # Community based kernels
 
@@ -37,17 +42,18 @@ As long as the necessary Pacman repositories are configured these are supported.
 - linux-nitrous
 
 Most of these are sourced from the ![Chaotic AUR](https://aur.chaotic.cx)
+
 See updating the configuration file for adding new kernels.
 
-![Community kernels](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/903ead21-8429-4686-a013-f0b31482ba79)
+![Community kernels](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/d53927bf-3998-4515-b692-b144582bb7f2)
 
 # Installed kernels
 
-![Installed kernels](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/e6280de3-f921-46f0-89da-4777fbc3bd84)
+![Installed kernels](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/9c248f43-bdfa-4141-bbfe-f5987d560598)
 
 # Progress window
 
-![Progress window](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/f1a7144b-e9b0-4fe1-9602-7d03487a120e)
+![Progress window](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/a9a86cb8-d632-4f82-9b86-0d5e455261d1)
 
 # Bootloader
 
