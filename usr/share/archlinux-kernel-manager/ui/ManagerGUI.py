@@ -269,10 +269,10 @@ class ManagerGUI(Gtk.ApplicationWindow):
             self.official_kernels = self.queue_kernels.get()
             self.queue_kernels.task_done()
 
-        # fn.logger.info("Starting pacman db synchronization thread")
-        # self.queue_load_progress.put("Starting pacman db synchronization")
-        #
-        # self.pacman_db_sync()
+        fn.logger.info("Starting pacman db synchronization thread")
+        self.queue_load_progress.put("Starting pacman db synchronization")
+
+        self.pacman_db_sync()
 
         fn.logger.info("Starting get community kernels thread")
         self.queue_load_progress.put("Getting community based Linux kernels")
@@ -502,7 +502,7 @@ class ManagerGUI(Gtk.ApplicationWindow):
         while self.default_context.pending():
             self.default_context.iteration(True)
 
-            fn.time.sleep(0.1)
+            fn.time.sleep(0.3)
 
         self.queue_load_progress.put(1)
         fn.logger.info("Kernel manager UI loaded")
