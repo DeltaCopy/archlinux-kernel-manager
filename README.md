@@ -4,7 +4,7 @@ A GTK4 Python application used to install and remove Linux Kernels on an Arch ba
 
 Installation and removal of Kernels is carried out using Pacman.
 
-Kernel packages are sourced from the ![Arch Linux Archive](https://wiki.archlinux.org/title/Arch_Linux_Archive)
+Kernel packages are sourced from the [Arch Linux Archive](https://wiki.archlinux.org/title/Arch_Linux_Archive)
 
 Both official and un-official community based Kernels are supported.
 
