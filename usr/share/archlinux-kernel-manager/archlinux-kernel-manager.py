@@ -17,7 +17,7 @@ base_dir = fn.os.path.dirname(fn.os.path.realpath(__file__))
 app_name = "Arch Linux Kernel Manager"
 app_version = "${app_version}"
 app_name_dir = "archlinux-kernel-manager"
-app_id = "com.archlinux.kernelmanager"
+app_id = "com.deltacopy.kernelmanager"
 lock_file = "/tmp/akm.lock"
 pid_file = "/tmp/akm.pid"
 

@@ -249,25 +249,30 @@ class ManagerGUI(Gtk.ApplicationWindow):
         self.timeout_id = GLib.timeout_add(3000, self.timeout)
 
     def start_get_kernels_threads(self):
-        fn.logger.info("Starting get official Linux kernels thread")
-        try:
-            fn.Thread(
-                name=fn.thread_get_kernels,
-                target=fn.get_official_kernels,
-                daemon=True,
-                args=(self,),
-            ).start()
+        if self.refresh_cache is False:
+            fn.logger.info("Starting get official Linux kernels thread")
+            try:
+                fn.Thread(
+                    name=fn.thread_get_kernels,
+                    target=fn.get_official_kernels,
+                    daemon=True,
+                    args=(self,),
+                ).start()
 
-        except Exception as e:
-            fn.logger.error("Exception in thread fn.get_official_kernels(): %s" % e)
-        finally:
+            except Exception as e:
+                fn.logger.error("Exception in thread fn.get_official_kernels(): %s" % e)
+            finally:
+                self.official_kernels = self.queue_kernels.get()
+                self.queue_kernels.task_done()
+
+        else:
             self.official_kernels = self.queue_kernels.get()
             self.queue_kernels.task_done()
 
-        fn.logger.info("Starting pacman db synchronization thread")
-        self.queue_load_progress.put("Starting pacman db synchronization")
-
-        self.pacman_db_sync()
+        # fn.logger.info("Starting pacman db synchronization thread")
+        # self.queue_load_progress.put("Starting pacman db synchronization")
+        #
+        # self.pacman_db_sync()
 
         fn.logger.info("Starting get community kernels thread")
         self.queue_load_progress.put("Getting community based Linux kernels")

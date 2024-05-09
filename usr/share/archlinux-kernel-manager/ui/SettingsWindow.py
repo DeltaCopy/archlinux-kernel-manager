@@ -81,9 +81,6 @@ class SettingsWindow(Gtk.Window):
         button_close = Gtk.Button(label="Close")
         button_close.connect("clicked", self.on_close_clicked)
 
-        # hbox_padding = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
-        # hbox_padding.set_name("box")
-
         hbox_stack_sidebar = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         hbox_stack_sidebar.set_name("box")
 
@@ -105,12 +102,12 @@ class SettingsWindow(Gtk.Window):
 
         label_official_kernels = Gtk.Label(xalign=0, yalign=0)
         label_official_kernels.set_markup(
-            "<b>Official kernels (%s)</b>" % len(fn.supported_kernels_dict)
+            "<b>Latest Official kernels (%s)</b>" % len(fn.supported_kernels_dict)
         )
 
         label_community_kernels = Gtk.Label(xalign=0, yalign=0)
         label_community_kernels.set_markup(
-            "<b>Community based kernels (%s)</b>"
+            "<b>Latest Community based kernels (%s)</b>"
             % len(self.manager_gui.community_kernels)
         )
 

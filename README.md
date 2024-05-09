@@ -1,10 +1,10 @@
 # Arch Linux Kernel Manager
 
-A GTK4 Python3 application used to install and remove Linux Kernels on an Arch based system.
+A GTK4 Python application used to install and remove Linux Kernels on an Arch based system.
 
 Installation and removal of Kernels is carried out using Pacman.
 
-Kernel packages are sourced from the Arch Linux Archive (ALA).
+Kernel packages are sourced from the ![Arch Linux Archive](https://wiki.archlinux.org/title/Arch_Linux_Archive)
 
 Both official and un-official community based Kernels are supported.
 
@@ -22,7 +22,7 @@ These kernels are considerably out of date and have shown to fail to install pro
 
 ## What happens if a kernel installation fails
 
-The application will indicate the failure and the log inside the progress window, should have the information required to understand why.
+The application will show a message that it has encountered an issue, and the log inside the progress window, should have the information required to understand why.
 In the event of a failure, the application will try to reinstall the kernel using the version previously installed.
 
 ![Official kernels](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/3dd09c35-561a-4787-8386-253dde7518ce)

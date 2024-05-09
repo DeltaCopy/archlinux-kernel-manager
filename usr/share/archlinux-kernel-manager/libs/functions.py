@@ -156,12 +156,7 @@ def get_latest_kernel_updates(self):
                 < datetime.datetime.now().date()
             ):
 
-                logger.info(
-                    "Fetching Linux package update from %s"
-                    % latest_archlinux_package_search_url.replace(
-                        "${PACKAGE_NAME}", "linux"
-                    )
-                )
+                logger.info("Fetching Linux package update data")
 
                 response = requests.get(
                     latest_archlinux_package_search_url.replace(
@@ -200,7 +195,7 @@ def get_latest_kernel_updates(self):
 
                                     refresh_cache(self)
 
-                                    return False
+                                    return True
 
                                 else:
                                     logger.info(
