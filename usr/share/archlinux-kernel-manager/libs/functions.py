@@ -30,7 +30,7 @@ from gi.repository import GLib
 base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 latest_archlinux_package_search_url = (
-    "https://archlinux.org/packages/search/json/?name=${PACKAGE_NAME}"
+    "https://archlinux.org/packages/search/json?name=${PACKAGE_NAME}"
 )
 archlinux_mirror_archive_url = "https://archive.archlinux.org"
 headers = {"Content-Type": "text/plain;charset=UTF-8"}
@@ -206,10 +206,19 @@ def get_latest_kernel_updates(self):
 
             else:
                 logger.info("Kernel update check not required")
+
                 return False
 
         else:
-            return True
+            logger.info("No cache file present, refresh required")
+            if not os.path.exists(cache_update):
+                last_update_check = datetime.datetime.now().strftime("%Y-%m-%d")
+                with open(cache_update, mode="w", encoding="utf-8") as f:
+                    f.write("%s\n" % last_update_check)
+
+                permissions(cache_dir)
+
+            return False
 
     except Exception as e:
         logger.error("Exception in get_latest_kernel_updates(): %s" % e)
