@@ -132,9 +132,10 @@ class KernelStack:
 
             label_active_installed_kernel = Gtk.Label(xalign=0.5, yalign=0.5)
             label_active_installed_kernel.set_name("label_active_kernel")
+            label_active_installed_kernel.set_selectable(True)
 
-            label_active_installed_kernel.set_text(
-                "Active kernel: %s" % self.manager_gui.active_kernel
+            label_active_installed_kernel.set_markup(
+                "<b>Active kernel:</b> %s" % self.manager_gui.active_kernel
             )
             label_active_installed_kernel.set_halign(Gtk.Align.START)
             self.manager_gui.vbox_active_installed_kernel.append(
@@ -232,8 +233,9 @@ class KernelStack:
 
                 label_active_kernel = Gtk.Label(xalign=0.5, yalign=0.5)
                 label_active_kernel.set_name("label_active_kernel")
-                label_active_kernel.set_text(
-                    "Active kernel: %s" % self.manager_gui.active_kernel
+                label_active_kernel.set_selectable(True)
+                label_active_kernel.set_markup(
+                    "<b>Active kernel:</b> %s" % self.manager_gui.active_kernel
                 )
                 label_active_kernel.set_halign(Gtk.Align.START)
 
@@ -420,8 +422,9 @@ class KernelStack:
 
         label_active_kernel = Gtk.Label(xalign=0.5, yalign=0.5)
         label_active_kernel.set_name("label_active_kernel")
+        label_active_kernel.set_selectable(True)
         label_active_kernel.set_markup(
-            "Active kernel: %s" % self.manager_gui.active_kernel
+            "<b>Active kernel:</b> %s" % self.manager_gui.active_kernel
         )
         label_active_kernel.set_halign(Gtk.Align.START)
 
