@@ -25,6 +25,6 @@ class Stack(Gtk.Stack):
         self.set_transition_type(transition_type)
         self.set_hexpand(True)
         self.set_vexpand(True)
-        self.set_transition_duration(350)
+        self.set_transition_duration(250)
         self.set_hhomogeneous(False)
         self.set_vhomogeneous(False)

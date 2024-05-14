@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import os
+
 import gi
 import signal
 import libs.functions as fn
@@ -15,7 +17,7 @@ base_dir = fn.os.path.dirname(fn.os.path.realpath(__file__))
 app_name = "Arch Linux Kernel Manager"
 app_version = "${app_version}"
 app_name_dir = "archlinux-kernel-manager"
-app_id = "com.archlinux.kernelmanager"
+app_id = "com.deltacopy.kernelmanager"
 lock_file = "/tmp/akm.lock"
 pid_file = "/tmp/akm.pid"
 
@@ -55,6 +57,10 @@ class Main(Gtk.Application):
 
     def do_shutdown(self):
         Gtk.Application.do_shutdown(self)
+        if os.path.exists(lock_file):
+            os.remove(lock_file)
+        if os.path.exists(pid_file):
+            os.remove(pid_file)
 
 
 def signal_handler(sig, frame):

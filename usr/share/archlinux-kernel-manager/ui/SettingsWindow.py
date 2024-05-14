@@ -1,5 +1,3 @@
-import sys
-
 import gi
 import os
 from ui.Stack import Stack
@@ -36,23 +34,23 @@ class SettingsWindow(Gtk.Window):
         hbox_main.set_name("box")
         self.set_child(child=hbox_main)
 
-        vbox_icon_settings = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
-        vbox_icon_settings.set_name("vbox_icon_settings")
+        vbox_header = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
+        vbox_header.set_name("vbox_header")
 
         lbl_heading = Gtk.Label(xalign=0.5, yalign=0.5)
         lbl_heading.set_name("label_flowbox_message")
-        lbl_heading.set_text("Advanced settings")
+        lbl_heading.set_text("Preferences")
 
         lbl_padding = Gtk.Label(xalign=0.0, yalign=0.0)
         lbl_padding.set_text(" ")
 
         grid_banner_img = Gtk.Grid()
 
-        image_settings = Gtk.Picture.new_for_filename(
+        image_settings = Gtk.Image.new_from_file(
             os.path.join(base_dir, "images/48x48/akm-settings.png")
         )
 
-        image_settings.set_content_fit(content_fit=Gtk.ContentFit.SCALE_DOWN)
+        image_settings.set_icon_size(Gtk.IconSize.LARGE)
         image_settings.set_halign(Gtk.Align.START)
 
         grid_banner_img.attach(image_settings, 0, 1, 1, 1)
@@ -72,9 +70,9 @@ class SettingsWindow(Gtk.Window):
             1,
         )
 
-        vbox_icon_settings.append(grid_banner_img)
+        vbox_header.append(grid_banner_img)
 
-        hbox_main.append(vbox_icon_settings)
+        hbox_main.append(vbox_header)
 
         stack_switcher = Gtk.StackSwitcher()
         stack_switcher.set_orientation(Gtk.Orientation.HORIZONTAL)
@@ -82,9 +80,6 @@ class SettingsWindow(Gtk.Window):
 
         button_close = Gtk.Button(label="Close")
         button_close.connect("clicked", self.on_close_clicked)
-
-        # hbox_padding = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
-        # hbox_padding.set_name("box")
 
         hbox_stack_sidebar = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         hbox_stack_sidebar.set_name("box")
@@ -107,12 +102,12 @@ class SettingsWindow(Gtk.Window):
 
         label_official_kernels = Gtk.Label(xalign=0, yalign=0)
         label_official_kernels.set_markup(
-            "<b>Official kernels (%s)</b>" % len(fn.supported_kernels_dict)
+            "<b>Latest Official kernels (%s)</b>" % len(fn.supported_kernels_dict)
         )
 
         label_community_kernels = Gtk.Label(xalign=0, yalign=0)
         label_community_kernels.set_markup(
-            "<b>Community based kernels (%s)</b>"
+            "<b>Latest Community based kernels (%s)</b>"
             % len(self.manager_gui.community_kernels)
         )
 
@@ -187,11 +182,11 @@ class SettingsWindow(Gtk.Window):
             )
             vbox_community_warning.set_name("box")
 
-            image_warning = Gtk.Picture.new_for_filename(
+            image_warning = Gtk.Image.new_from_file(
                 os.path.join(base_dir, "images/48x48/akm-warning.png")
             )
 
-            image_warning.set_content_fit(content_fit=Gtk.ContentFit.SCALE_DOWN)
+            image_warning.set_icon_size(Gtk.IconSize.LARGE)
             image_warning.set_halign(Gtk.Align.START)
 
             hbox_warning = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
@@ -220,27 +215,27 @@ class SettingsWindow(Gtk.Window):
 
         vbox_settings.append(vbox_settings_listbox)
 
-        stack.add_titled(vbox_settings, "Kernels", "Kernels")
-
         vbox_settings_adv = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
 
         vbox_settings_adv.set_name("box")
 
-        listbox_settings_adv = Gtk.ListBox()
-        listbox_settings_adv.set_selection_mode(Gtk.SelectionMode.NONE)
+        self.listbox_settings_adv = Gtk.ListBox()
+        self.listbox_settings_adv.set_selection_mode(Gtk.SelectionMode.NONE)
 
         row_settings_adv = Gtk.ListBoxRow()
-        listbox_settings_adv.append(row_settings_adv)
+        self.listbox_settings_adv.append(row_settings_adv)
 
         hbox_bootloader_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
         hbox_bootloader_row.set_name("box_row")
         hbox_bootloader_row.set_halign(Gtk.Align.START)
 
-        hbox_bootloader_grub = Gtk.Box(
+        self.hbox_bootloader_grub_row = Gtk.Box(
             orientation=Gtk.Orientation.HORIZONTAL, spacing=5
         )
-        hbox_bootloader_grub.set_name("box")
-        hbox_bootloader_grub.set_halign(Gtk.Align.START)
+        self.hbox_bootloader_grub_row.set_name("box_row")
+        self.hbox_bootloader_grub_row.set_halign(Gtk.Align.START)
+
+        self.text_entry_bootloader_file = Gtk.Entry()
 
         hbox_switch_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
         hbox_switch_row.set_name("box_row")
@@ -253,12 +248,17 @@ class SettingsWindow(Gtk.Window):
         label_bootloader = Gtk.Label(xalign=0, yalign=0)
         label_bootloader.set_markup("<b>Bootloader</b>")
 
+        hbox_warning = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
+        hbox_warning.set_name("hbox_warning")
+
         label_bootloader_warning = Gtk.Label(xalign=0, yalign=0)
         label_bootloader_warning.set_markup(
-            f"<span foreground='orange'><b>Warning: Only change this setting if you know what you are doing</b></span>\n"
-            f"<span foreground='orange'><b>Warning: This can break your system</b></span>\n"
-            f"<span foreground='orange'><b>Only the selected Grub/Systemd-boot bootloader entry will be updated</b></span>"
+            f"Only change this setting if you know what you are doing\n"
+            f"The selected Grub/Systemd-boot bootloader entry will be updated\n"
+            f"<b>This may break your system</b>"
         )
+
+        hbox_warning.append(label_bootloader_warning)
 
         label_settings_bootloader_title = Gtk.Label(xalign=0.5, yalign=0.5)
         label_settings_bootloader_title.set_markup("Current Bootloader")
@@ -270,11 +270,11 @@ class SettingsWindow(Gtk.Window):
             label="Override bootloader settings"
         )
         self.button_override_bootloader.connect("clicked", self.on_override_clicked)
-        hbox_bootloader_override_row = Gtk.Box(
+        self.hbox_bootloader_override_row = Gtk.Box(
             orientation=Gtk.Orientation.HORIZONTAL, spacing=20
         )
-        hbox_bootloader_override_row.set_name("box_row")
-        hbox_bootloader_override_row.append(self.button_override_bootloader)
+        self.hbox_bootloader_override_row.set_name("box_row")
+        self.hbox_bootloader_override_row.append(self.button_override_bootloader)
 
         boot_loaders = {0: "grub", 1: "systemd-boot"}
 
@@ -296,54 +296,62 @@ class SettingsWindow(Gtk.Window):
             model=self.model, factory=factory, hexpand=True
         )
 
-        # self.dropdown_bootloader.connect("activate", self.dropdown_bootloader_selected)
-
         self.dropdown_bootloader.set_sensitive(False)
 
         self.selected_bootloader = None
-        self.bootloader_grub_config = "/boot/grub/grub.cfg"
 
-        if manager_gui.bootloader == "grub":
-            self.dropdown_bootloader.set_selected(0)
-            self.selected_bootloader = 0
+        self._bootloader_grub_config = "/boot/grub/grub.cfg"
 
-            self.hbox_bootloader_grub_row = Gtk.Box(
-                orientation=Gtk.Orientation.HORIZONTAL, spacing=20
-            )
-            self.hbox_bootloader_grub_row.set_name("box_row")
+        row_settings_override_grub = Gtk.ListBoxRow()
+        row_settings_grub = Gtk.ListBoxRow()
+        self.listbox_settings_adv.append(row_settings_grub)
 
-            self.hbox_bootloader_grub_row.append(self.label_settings_bootloader_file)
+        self.listbox_settings_adv.append(row_settings_override_grub)
 
-            row_settings_grub = Gtk.ListBoxRow()
-            listbox_settings_adv.append(row_settings_grub)
+        self.text_entry_bootloader_file.connect("changed", self.on_entry_changed)
+        self.text_entry_bootloader_file.props.editable = False
+        text_entry_buffer_file = Gtk.EntryBuffer()
 
-            row_settings_override_grub = Gtk.ListBoxRow()
-            listbox_settings_adv.append(row_settings_override_grub)
-
-            self.text_entry_bootloader_file = Gtk.Entry()
-            self.text_entry_bootloader_file.connect("changed", self.on_entry_changed)
-            self.text_entry_bootloader_file.props.editable = False
-            text_entry_buffer_file = Gtk.EntryBuffer()
+        if self.manager_gui.bootloader_grub_cfg is not None:
             text_entry_buffer_file.set_text(
                 self.manager_gui.bootloader_grub_cfg,
                 len(self.manager_gui.bootloader_grub_cfg),
             )
-            self.text_entry_bootloader_file.set_buffer(text_entry_buffer_file)
-            self.text_entry_bootloader_file.set_halign(Gtk.Align.END)
-            self.text_entry_bootloader_file.set_sensitive(False)
+        else:
+            text_entry_buffer_file.set_text(
+                self._bootloader_grub_config,
+                len(self._bootloader_grub_config),
+            )
 
-            self.hbox_bootloader_grub_row.append(self.text_entry_bootloader_file)
+        self.text_entry_bootloader_file.set_buffer(text_entry_buffer_file)
+        self.text_entry_bootloader_file.set_halign(Gtk.Align.END)
+        self.text_entry_bootloader_file.set_sensitive(False)
 
-            row_settings_grub.set_child(self.hbox_bootloader_grub_row)
-            row_settings_override_grub.set_child(hbox_bootloader_override_row)
+        label_grub_file_path = Gtk.Label(xalign=0.5, yalign=0.5)
+        label_grub_file_path.set_markup("Grub file path")
+
+        self.hbox_bootloader_grub_row.append(label_grub_file_path)
+        self.hbox_bootloader_grub_row.append(self.text_entry_bootloader_file)
+
+        row_settings_grub.set_child(self.hbox_bootloader_grub_row)
+
+        if manager_gui.bootloader == "grub":
+            self.dropdown_bootloader.set_selected(0)
+            self.selected_bootloader = 0
+            self.hbox_bootloader_grub_row.set_visible(True)
+
+            row_settings_override_grub.set_child(self.hbox_bootloader_override_row)
 
         if manager_gui.bootloader == "systemd-boot":
+
             self.selected_bootloader = 1
-            self.text_entry_bootloader_file = None
+
             self.dropdown_bootloader.set_selected(1)
             row_settings_override_systemd = Gtk.ListBoxRow()
-            listbox_settings_adv.append(row_settings_override_systemd)
-            row_settings_override_systemd.set_child(hbox_bootloader_override_row)
+            self.listbox_settings_adv.append(row_settings_override_systemd)
+            row_settings_override_systemd.set_child(self.hbox_bootloader_override_row)
+
+            self.hbox_bootloader_grub_row.set_visible(False)
 
         self.dropdown_bootloader.connect(
             "notify::selected-item", self._on_selected_item_notify
@@ -355,8 +363,8 @@ class SettingsWindow(Gtk.Window):
         row_settings_adv.set_child(hbox_bootloader_row)
 
         vbox_settings_adv.append(label_bootloader)
-        vbox_settings_adv.append(label_bootloader_warning)
-        vbox_settings_adv.append(listbox_settings_adv)
+        vbox_settings_adv.append(hbox_warning)
+        vbox_settings_adv.append(self.listbox_settings_adv)
 
         listbox_settings_cache = Gtk.ListBox()
         listbox_settings_cache.set_selection_mode(Gtk.SelectionMode.NONE)
@@ -365,7 +373,7 @@ class SettingsWindow(Gtk.Window):
         listbox_settings_cache.append(row_settings_cache)
 
         label_cache = Gtk.Label(xalign=0, yalign=0)
-        label_cache.set_markup("<b>Cache</b>")
+        label_cache.set_markup("<b>Refresh data from Arch Linux Archive</b>")
 
         label_cache_update = Gtk.Label(xalign=0.5, yalign=0.5)
         label_cache_update.set_text("Update (this will take some time)")
@@ -417,7 +425,8 @@ class SettingsWindow(Gtk.Window):
         vbox_settings_adv.append(label_logfile)
         vbox_settings_adv.append(listbox_settings_log)
 
-        stack.add_titled(vbox_settings_adv, "Advanced Settings", "Advanced Settings")
+        stack.add_titled(vbox_settings_adv, "Advanced Settings", "Advanced")
+        stack.add_titled(vbox_settings, "Kernels", "Kernel versions")
 
     def populate_official_kernels(self):
         self.label_loading_kernels.hide()
@@ -492,17 +501,20 @@ class SettingsWindow(Gtk.Window):
                     self.dropdown_bootloader.set_selected(0)
                     return
 
-            config_data = fn.read_config()
+            config_data = fn.read_config(self)
 
             if config_data is not None:
                 # grub
 
                 if (
                     self.dropdown_bootloader.get_selected() == 0
-                    and len(self.text_entry_bootloader_file.get_text().strip()) > 0
+                    and len(
+                        self.text_entry_bootloader_file.get_buffer().get_text().strip()
+                    )
+                    > 0
                 ):
                     if fn.os.path.exists(
-                        self.text_entry_bootloader_file.get_text().strip()
+                        self.text_entry_bootloader_file.get_buffer().get_text().strip()
                     ):
                         if "bootloader" in config_data.keys():
                             config_data.remove("bootloader")
@@ -511,7 +523,9 @@ class SettingsWindow(Gtk.Window):
                         bootloader.update({"name": "grub"})
                         bootloader.update(
                             {
-                                "grub_config": self.text_entry_bootloader_file.get_text().strip()
+                                "grub_config": self.text_entry_bootloader_file.get_buffer()
+                                .get_text()
+                                .strip()
                             }
                         )
 
@@ -520,15 +534,20 @@ class SettingsWindow(Gtk.Window):
                         if fn.update_config(config_data, "grub") is True:
                             self.manager_gui.bootloader = "grub"
                             self.manager_gui.bootloader_grub_cfg = (
-                                self.text_entry_bootloader_file.get_text().strip()
+                                self.text_entry_bootloader_file.get_buffer()
+                                .get_text()
+                                .strip()
                             )
                     else:
                         mw = MessageWindow(
                             title="Grub config file",
                             message="The specified Grub config file %s does not exist"
-                            % self.text_entry_bootloader_file.get_text().strip(),
+                            % self.text_entry_bootloader_file.get_buffer()
+                            .get_text()
+                            .strip(),
                             image_path="images/48x48/akm-warning.png",
                             transient_for=self,
+                            detailed_message=False,
                         )
 
                         mw.present()
@@ -543,6 +562,8 @@ class SettingsWindow(Gtk.Window):
                 ):
                     if "bootloader" in config_data.keys():
                         config_data.remove("bootloader")
+
+                    self.hbox_bootloader_grub_row.set_visible(True)
 
                     bootloader = fn.tomlkit.table(True)
                     bootloader.update({"name": "systemd-boot"})
@@ -575,6 +596,8 @@ class SettingsWindow(Gtk.Window):
         elif dd.get_selected() == 0:
             if self.text_entry_bootloader_file is not None:
                 self.hbox_bootloader_grub_row.set_visible(True)
+                self.text_entry_bootloader_file.set_sensitive(True)
+                self.text_entry_bootloader_file.props.editable = True
 
     def monitor_kernels_queue(self, switch):
         while True:

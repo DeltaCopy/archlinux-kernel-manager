@@ -1,10 +1,14 @@
 # Arch Linux Kernel Manager
 
-A GTK4 Python3 application used to install/remove Linux kernels on an Arch based system.
+A GTK4 Python application used to install and remove Linux Kernels on an Arch based system.
+
+Installation and removal of Kernels is carried out using Pacman.
+
+Kernel packages are sourced from the [Arch Linux Archive](https://wiki.archlinux.org/title/Arch_Linux_Archive) (ALA)
+
+Both official and un-official community based Kernels are supported.
 
 # Official Kernels
-
-The following Kernels are supported:
 
 - linux
 - linux-lts
@@ -13,11 +17,19 @@ The following Kernels are supported:
 - linux-rt
 - linux-rt-lts
 
-![Official kernel](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/c95f1c21-54e2-42b3-a182-759edec07fae)
+Since the ALA has a lot of kernel packages any versions found older than 2 years or more are ignored.
+These kernels are considerably out of date and have shown to fail to install properly with issues related to missing modules.
 
-# Community based Kernels
+![Official kernels](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/3dd09c35-561a-4787-8386-253dde7518ce)
 
-Community based Kernels are also supported, as long as the necessary Pacman repositories are configured
+## What happens if a kernel installation fails
+
+The application will show a message that it has encountered an issue, and the log inside the progress window, should have the information required to understand why.
+In the event of a failure, the application will try to reinstall the kernel using the version previously installed.
+
+# Community based kernels
+
+As long as the necessary Pacman repositories are configured these are supported.
 
 - linux-xanmod
 - linux-xanmod-lts
@@ -29,16 +41,30 @@ Community based Kernels are also supported, as long as the necessary Pacman repo
 - linux-amd
 - linux-nitrous
 
-![Community kernel](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/a8db794c-e045-4e75-8496-4f537b2f8e10)
+Most of these are sourced from the ![Chaotic AUR](https://aur.chaotic.cx)
+
+See updating the configuration file for adding new kernels.
+
+![Community kernels](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/d53927bf-3998-4515-b692-b144582bb7f2)
+
+# Installed kernels
+
+![Installed kernels](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/669e837a-4b58-4825-a091-986f01601327)
+
+# Progress window
+
+![Progress window](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/a9a86cb8-d632-4f82-9b86-0d5e455261d1)
 
 # Bootloader
+
+Only Grub and systemd-boot bootloaders are supported.
 
 After a successful install/removal of a kernel the relevant bootloader entries are updated.
 By default, the application will use `bootctl` to distinguish which bootloader (Grub/systemd-boot) is currently being used.
 
 ## Grub
 
-`grub-mkconfig` is run to update the grub.cfg file
+`grub-mkconfig` is run to update the grub.cfg file.
 
 ## systemd-boot
 
@@ -49,8 +75,15 @@ By default, the application will use `bootctl` to distinguish which bootloader (
 ## Bootloader settings
 
 The bootloader settings can be overridden using the Advanced settings window.
+Or you can manually update the configuration file (see the custom bootloader example).
 
-![Advanced settings](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/e37a97b3-da11-4e3c-8592-51ad72cfe143)
+![Advanced settings](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/35c64579-250d-4254-96e1-0d61b9302137)
+
+## Latest kernel versions
+
+Based on the latest information taken from the configured pacman mirrors.
+
+![Kernel versions](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/e190c838-839e-43e9-8d62-153650ce05cc)
 
 # Default configuration file
 
@@ -103,8 +136,8 @@ Further details on un-official kernels can be found on https://wiki.archlinux.or
 
 Kernel data retrieved from the ALA is stored inside a toml based file inside `$HOME/.cache/archlinux-kernel-manager/kernels.toml`
 
-This cached file is updated every 5 days to ensure the application is kept up to date with the latest kernels.
-Clicking on Update inside Advanced Settings, will force the application to update the cache.
+This cached file is updated automatically every 5 days to ensure the application is kept up to date with the latest kernels.
+Using the Update switch inside Advanced Settings, will force the application to update the cache.
 
 This cache file may take a little while to generate since archived Arch kernel package data is being retrieved from the ALA.
 
@@ -124,12 +157,12 @@ Logs can be found inside `/var/log/archlinux-kernel-manager`
 
 - python-psutil
 
-# Running the application
-
-## Installation
+# Installing the application
 
 `wget https://raw.githubusercontent.com/DeltaCopy/archlinux-kernel-manager/develop/PKGBUILD`
 
 `makepkg -si`
 
-After installation, run `akm` or `archlinux-kernel-manager` to launch the application.
+# Running the application
+
+Run `akm` or `archlinux-kernel-manager` to launch the application.
