@@ -231,21 +231,12 @@ def get_latest_kernel_updates(self):
 def get_cache_last_modified():
     try:
         if os.path.exists(cache_file):
-            # Sat May  4 15:00:27 2024
-            # return datetime.datetime.strptime(
-            #     time.ctime(pathlib.Path(cache_file).stat().st_mtime),
-            #     "%a %b %w %H:%M:%S %Y",
-            # )
-
             timestamp = datetime.datetime.fromtimestamp(
                 pathlib.Path(cache_file).stat().st_mtime, tz=datetime.timezone.utc
             )
-
-            return "%s %s:%s:%s" % (
+            return "%s %s" % (
                 timestamp.date(),
-                timestamp.time().hour,
-                timestamp.minute,
-                timestamp.second,
+                str(timestamp.time()).split(".")[0],
             )
 
         else:
