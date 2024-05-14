@@ -34,8 +34,6 @@ As long as the necessary Pacman repositories are configured these are supported.
 - linux-xanmod
 - linux-xanmod-lts
 - linux-cachyos
-- linux-lts-tkg-bmq
-- linux-lts-tkg-pds
 - linux-lqx
 - linux-clear
 - linux-amd
