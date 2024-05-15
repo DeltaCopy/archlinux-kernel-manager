@@ -234,6 +234,7 @@ def get_cache_last_modified():
             timestamp = datetime.datetime.fromtimestamp(
                 pathlib.Path(cache_file).stat().st_mtime, tz=datetime.timezone.utc
             )
+
             return "%s %s" % (
                 timestamp.date(),
                 str(timestamp.time()).split(".")[0],
@@ -1049,6 +1050,7 @@ def uninstall(self):
 
 def get_community_kernels(self):
     try:
+        logger.info("Fetching package information for community based kernels")
         for community_kernel in sorted(community_kernels_dict):
             if community_kernels_dict[community_kernel][2] in pacman_repos_list:
                 pacman_repo = community_kernels_dict[community_kernel][2]
@@ -1061,7 +1063,7 @@ def get_community_kernels(self):
                     "-Si",
                     "%s/%s" % (pacman_repo, name),
                 ]
-                logger.info("Fetching package information for %s" % name)
+
                 # logger.debug("Running %s" % query_cmd_str)
                 process_kernel_query = subprocess.Popen(
                     query_cmd_str,
