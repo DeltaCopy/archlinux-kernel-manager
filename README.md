@@ -39,9 +39,9 @@ As long as the necessary Pacman repositories are configured these are supported.
 - linux-amd
 - linux-nitrous
 
-Most of these are sourced from the ![Chaotic AUR](https://aur.chaotic.cx)
+Most of these are sourced from the [Chaotic AUR](https://aur.chaotic.cx)
 
-See updating the configuration file for adding new kernels.
+See updating the [configuration file](#Adding-new-community-based-kernels) for adding new kernels.
 
 ![Community kernels](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/d53927bf-3998-4515-b692-b144582bb7f2)
 
@@ -124,6 +124,7 @@ community = [
 #grub_config = "/boot/grub/grub.cfg"
 
 ```
+## Adding new community based kernels
 
 Further Kernels can be added using the same format.
 
