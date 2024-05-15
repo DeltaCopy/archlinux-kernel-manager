@@ -20,7 +20,7 @@ Both official and un-official community based Kernels are supported.
 Since the ALA has a lot of kernel packages any versions found older than 2 years or more are ignored.
 These kernels are considerably out of date and have shown to fail to install properly with issues related to missing modules.
 
-![Official kernels](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/3dd09c35-561a-4787-8386-253dde7518ce)
+![Official kernels](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/d3e0416d-5ba8-4906-bada-835f4d949130)
 
 ## What happens if a kernel installation fails
 
@@ -43,15 +43,15 @@ Most of these are sourced from the [Chaotic AUR](https://aur.chaotic.cx)
 
 See updating the [configuration file](#Adding-new-community-based-kernels) for adding new kernels.
 
-![Community kernels](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/d53927bf-3998-4515-b692-b144582bb7f2)
+![Community kernels](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/072bc9b2-cca4-4c5a-ae91-be9c0440feb3)
 
 # Installed kernels
 
-![Installed kernels](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/669e837a-4b58-4825-a091-986f01601327)
+![Installed kernels](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/1120c9cc-adc1-4f2c-92c5-dff8d1d1c841)
 
 # Progress window
 
-![Progress window](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/a9a86cb8-d632-4f82-9b86-0d5e455261d1)
+![Progress window](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/2b7e97db-06f6-4152-bf13-b81fbc42b63c)
 
 # Bootloader
 
@@ -75,13 +75,13 @@ By default, the application will use `bootctl` to distinguish which bootloader (
 The bootloader settings can be overridden using the Advanced settings window.
 Or you can manually update the configuration file (see the custom bootloader example).
 
-![Advanced settings](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/35c64579-250d-4254-96e1-0d61b9302137)
+![Advanced settings](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/827033b1-9250-4967-9431-e2b6205ed3a0)
 
 ## Latest kernel versions
 
 Based on the latest information taken from the configured pacman mirrors.
 
-![Kernel versions](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/e190c838-839e-43e9-8d62-153650ce05cc)
+![Kernel versions](https://github.com/DeltaCopy/archlinux-kernel-manager/assets/121581829/43416b00-3759-4913-8d09-8f9083edc358)
 
 # Default configuration file
 

@@ -332,6 +332,7 @@ class ManagerGUI(Gtk.ApplicationWindow):
     # keep splash screen open, until main gui is loaded
     def wait_for_gui_load(self):
         while True:
+            fn.time.sleep(0.2)
             status = self.queue_load_progress.get()
             if status == 1:
                 GLib.idle_add(
