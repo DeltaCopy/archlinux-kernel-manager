@@ -1,3 +1,5 @@
+import datetime
+
 import gi
 import os
 import libs.functions as fn
@@ -64,15 +66,6 @@ class FlowBox(Gtk.FlowBox):
                     "%s %s %s" % (cache.name, cache.version, cache.repository)
                 )
 
-                tux_icon = Gtk.Picture.new_for_file(
-                    file=Gio.File.new_for_path(
-                        os.path.join(base_dir, "images/48x48/akm-tux.png")
-                    )
-                )
-
-                tux_icon.set_content_fit(content_fit=Gtk.ContentFit.SCALE_DOWN)
-                tux_icon.set_halign(Gtk.Align.START)
-
                 vbox_kernel_widgets = Gtk.Box(
                     orientation=Gtk.Orientation.VERTICAL, spacing=0
                 )
@@ -91,26 +84,6 @@ class FlowBox(Gtk.FlowBox):
                 label_kernel_size = Gtk.Label(xalign=0, yalign=0)
                 label_kernel_size.set_name("label_kernel_flowbox")
 
-                for installed_kernel in self.manager_gui.installed_kernels:
-                    if "{}-{}".format(
-                        installed_kernel.name, installed_kernel.version
-                    ) == "{}-{}".format(cache.name, cache.version):
-                        installed = True
-
-                if installed is True:
-                    switch_kernel.set_state(True)
-                    switch_kernel.set_active(True)
-
-                else:
-                    switch_kernel.set_state(False)
-                    switch_kernel.set_active(False)
-
-                installed = False
-                switch_kernel.connect("state-set", self.kernel_toggle_state, cache)
-
-                hbox_kernel = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
-                hbox_kernel.set_name("hbox_kernel")
-
                 label_kernel_name = Gtk.Label(xalign=0, yalign=0)
                 label_kernel_name.set_name("label_kernel_version")
                 label_kernel_name.set_markup(
@@ -120,6 +93,57 @@ class FlowBox(Gtk.FlowBox):
                 label_kernel_name.set_selectable(True)
 
                 vbox_kernel_widgets.append(label_kernel_name)
+
+                tux_icon = Gtk.Picture.new_for_file(
+                    file=Gio.File.new_for_path(
+                        os.path.join(base_dir, "images/48x48/akm-tux.png")
+                    )
+                )
+                tux_icon.set_can_shrink(True)
+
+                for installed_kernel in self.manager_gui.installed_kernels:
+                    if "{}-{}".format(
+                        installed_kernel.name, installed_kernel.version
+                    ) == "{}-{}".format(cache.name, cache.version):
+                        installed = True
+
+                    if (
+                        cache.name == installed_kernel.name
+                        and cache.version > installed_kernel.version
+                    ):
+                        fn.logger.info(
+                            "Kernel upgrade available - %s %s"
+                            % (cache.name, cache.version)
+                        )
+
+                        tux_icon = Gtk.Picture.new_for_file(
+                            file=Gio.File.new_for_path(
+                                os.path.join(base_dir, "images/48x48/akm-update.png")
+                            )
+                        )
+                        tux_icon.set_can_shrink(True)
+
+                        label_kernel_name.set_markup(
+                            "<b>*%s</b> %s <i>%s</i>"
+                            % (cache.name, cache.version, cache.repository)
+                        )
+
+                if installed is True:
+                    switch_kernel.set_state(True)
+                    switch_kernel.set_active(True)
+
+                else:
+                    switch_kernel.set_state(False)
+                    switch_kernel.set_active(False)
+
+                tux_icon.set_content_fit(content_fit=Gtk.ContentFit.SCALE_DOWN)
+                tux_icon.set_halign(Gtk.Align.START)
+
+                installed = False
+                switch_kernel.connect("state-set", self.kernel_toggle_state, cache)
+
+                hbox_kernel = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
+                hbox_kernel.set_name("hbox_kernel")
 
                 label_kernel_size.set_text("%sM" % str(cache.install_size))
 

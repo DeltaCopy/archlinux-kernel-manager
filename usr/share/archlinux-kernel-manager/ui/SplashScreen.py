@@ -16,17 +16,12 @@ class SplashScreen(Gtk.Window):
         self.set_title(app_name)
         self.set_icon_name("archlinux-kernel-manager-tux")
 
-        main_vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=1)
-        self.set_child(child=main_vbox)
-
         tux_icon = Gtk.Picture.new_for_file(
             file=Gio.File.new_for_path(
                 fn.os.path.join(base_dir, "images/364x408/akm-tux-splash.png")
             )
         )
-
         tux_icon.set_content_fit(content_fit=Gtk.ContentFit.FILL)
 
-        main_vbox.append(tux_icon)
-
+        self.set_child(child=tux_icon)
         self.present()
