@@ -498,13 +498,13 @@ class FlowBoxInstalled(Gtk.FlowBox):
             message_window.present()
         else:
             fn.logger.warn(
-                "You only have 1 kernel installed, and %s %s is currently active, uninstall aborted."
+                "You only have 1 kernel installed %s %s, uninstall aborted."
                 % (installed_kernel.name, installed_kernel.version)
             )
             msg_win = MessageWindow(
                 title="Warning: Uninstall aborted",
                 message=f"You only have 1 kernel installed\n"
-                f"<b>{installed_kernel.name} {installed_kernel.version}</b> is currently active\n",
+                f"<b>{installed_kernel.name} {installed_kernel.version}</b>\n",
                 image_path="images/48x48/akm-remove.png",
                 transient_for=self.manager_gui,
                 detailed_message=False,

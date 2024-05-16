@@ -92,6 +92,13 @@ class ManagerGUI(Gtk.ApplicationWindow):
                         self.bootloader_grub_cfg = config_data["bootloader"][
                             "grub_config"
                         ]
+                elif self.bootloader != "systemd-boot" or self.bootloader != "grub":
+                    fn.logger.warning(
+                        "Invalid bootloader config found it should only be systemd-boot or grub"
+                    )
+
+                    fn.logger.warning("Using bootctl to determine current bootloader")
+                    self.bootloader = None
 
         if self.bootloader is not None or self.bootloader_grub_cfg is not None:
             fn.logger.info("User provided bootloader options read from config file")
