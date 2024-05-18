@@ -158,7 +158,7 @@ Logs can be found inside `/var/log/archlinux-kernel-manager`
 
 # Installing the application
 
-`wget https://raw.githubusercontent.com/DeltaCopy/archlinux-kernel-manager/develop/PKGBUILD`
+`wget https://raw.githubusercontent.com/DeltaCopy/archlinux-kernel-manager/main/PKGBUILD`
 
 `makepkg -si`
 
